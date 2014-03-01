@@ -1,0 +1,5 @@
+
+attach = (app) ->
+
+{ :attach }
+
