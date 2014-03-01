@@ -4,9 +4,12 @@ import Widget from require "lapis.html"
 config = require("lapis.config").get!
 
 class ExceptionEmail extends Widget
-  @send: (r, etype, ...) =>
-    return unless config.track_exceptions and config.admin_email
+  @send: (r, ...) =>
+    return unless config.admin_email
     import send_email from require "helpers.email"
+    io.stdout\write "\n\nsending email to #{config.admin_email}\n\n"
+    io.stdout\write require("moon").dump { @render r, ... }
+
     send_email config.admin_email, @render r, ...
 
   @render: (r, params) =>
@@ -17,28 +20,28 @@ class ExceptionEmail extends Widget
   subject: =>
     "[#{config.app_name or "lapis"} exception] #{@msg}"
 
-  body: =>
-      h2 "There was an exception"
-      pre @msg
-      pre @trace
+  content: =>
+    h2 "There was an exception"
+    pre @msg
+    pre @trace
 
-      h2 "Request"
+    h2 "Request"
+    pre ->
+      strong "method: "
+      text @method
+
+    pre ->
+      strong "path: "
+      text @path
+
+    pre ->
+      strong "ip: "
+      text @ip
+
+    moon = require "moon"
+    for k,v in pairs @data
       pre ->
-        strong "method: "
-        text @method
-
-      pre ->
-        strong "path: "
-        text @path
-
-      pre ->
-        strong "ip: "
-        text @ip
-
-      moon = require "moon"
-      for k,v in pairs @data
-        pre ->
-          strong "#{k}: "
-          text moon.dump v
+        strong "#{k}: "
+        text moon.dump v
 
 

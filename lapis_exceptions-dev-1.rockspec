@@ -1,4 +1,4 @@
-package = "lapis_console"
+package = "lapis_exceptions"
 version = "dev-1"
 
 source = {
@@ -19,6 +19,9 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
+		["lapis.exceptions.email"] = "lapis/exceptions/email.lua",
+		["lapis.exceptions.models"] = "lapis/exceptions/models.lua",
+		["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",
   }
 }
 

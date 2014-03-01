@@ -95,12 +95,12 @@ do
   local _parent_0 = Model
   local _base_0 = {
     should_send_email = function(self)
+      do
+        return true
+      end
       local date = require("date")
       local last_occurrence = date.diff(date(true), date(self.updated_at)):spanseconds()
-      local _ = self.created_at ~= self.updated_at and last_occurrence > 60 * 10
-      if last_occurrence > 60 * 10 or self.created_at == self.updated_at then
-        return false
-      end
+      return self.created_at == self.updated_at or last_occurrence > 60 * 10
     end
   }
   _base_0.__index = _base_0
@@ -207,7 +207,7 @@ do
     local etype = ExceptionTypes:find_or_create(msg)
     if etype:should_send_email() then
       local ExceptionEmail = require("lapis.exceptions.email")
-      ExceptionEmail:send(r, etype, {
+      ExceptionEmail:send(r, {
         msg = msg,
         trace = trace,
         ip = ip,

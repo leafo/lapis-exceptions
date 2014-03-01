@@ -62,11 +62,10 @@ class ExceptionTypes extends Model
 
   -- only send email if one hasn't happened recently
   should_send_email: =>
+    do return true
     date = require "date"
     last_occurrence = date.diff(date(true), date(@updated_at))\spanseconds!
-    @created_at != @updated_at and last_occurrence > 60*10
-
-    return false if last_occurrence > 60*10 or @created_at == @updated_at
+    @created_at == @updated_at or last_occurrence > 60*10
 
 class ExceptionRequests extends Model
   @timestamp: true
@@ -96,7 +95,7 @@ class ExceptionRequests extends Model
 
     if etype\should_send_email!
       ExceptionEmail = require "lapis.exceptions.email"
-      ExceptionEmail\send r, etype, :msg, :trace, :ip, :method, :path, :data
+      ExceptionEmail\send r, :msg, :trace, :ip, :method, :path, :data
 
     etype\update count: db.raw "count + 1"
 
