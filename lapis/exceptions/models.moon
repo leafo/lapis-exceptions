@@ -89,7 +89,6 @@ class ExceptionTypes extends Model
     unless et
       et = @create(:label)
       et.should_send_email = T
-
     et
 
   -- only send email if one hasn't happened recently

@@ -22,7 +22,7 @@ class ExceptionEmail extends Widget
     pre @msg
     pre @trace
 
-    p os.date "!%c"
+    p "The exception happened #{os.date "!%c"}"
 
     h2 "Request"
     pre ->

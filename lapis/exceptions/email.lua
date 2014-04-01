@@ -15,7 +15,7 @@ do
       h2("There was an exception")
       pre(self.msg)
       pre(self.trace)
-      p(os.date("!%c"))
+      p("The exception happened " .. tostring(os.date("!%c")))
       h2("Request")
       pre(function()
         strong("method: ")

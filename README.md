@@ -56,11 +56,48 @@ recipient email address, the subject, and the body.
 require("helpers.email").send_email "leafo@example.com", "Hello!", "This is an email"
 ```
 
+You can find a [example send_mail implementation in the MoonRocks
+repository](https://github.com/leafo/moonrocks-site/blob/master/helpers/email.moon).
+
+An email will be sent to `config.admin_email` every time a new exception type
+is created, or every time an exception type is updated if it's been 10 minutes
+since the last update.
+
 ## Getting the exceptions
 
 There's no admin panel for viewing exceptions inside the web app yet. You'll
 have to manually run queries in the database or use the emails.
 
+## Models
+
+Two models are created to hold exception data: `ExceptionTypes` and
+`ExceptionRequests`. `ExceptionTypes` holds normalized exception messages.
+`ExceptionRequests` holds the original exception message along with data about
+the request. It has a foreign key pointing to the exception type it belongs to.
+
+
+The models can be accessed like so:
+
+```moonscript
+import ExceptionTypes, ExceptionRequests from require "lapis.exceptions.models"
+```
+
+## Exception grouping
+
+Exceptions are grouped by their exception message in order to reduce the amount
+of emails triggered. A normalized exception message is stored in the
+`ExceptionTypes` table. Numbers and strings are replaced by generic identifiers,
+line numbers are left alone.
+
+For example, the following exception message:
+
+    ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = 'yeah and age > 10'
+
+Would be normalized to:
+
+    ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = [STRING] and age > [NUMBER]
+
+Before being stored in the database.
 
 # Contact
 
