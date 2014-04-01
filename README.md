@@ -56,7 +56,7 @@ recipient email address, the subject, and the body.
 require("helpers.email").send_email "leafo@example.com", "Hello!", "This is an email"
 ```
 
-You can find a [example send_mail implementation in the MoonRocks
+You can find an [example send_mail implementation in the MoonRocks
 repository](https://github.com/leafo/moonrocks-site/blob/master/helpers/email.moon).
 
 An email will be sent to `config.admin_email` every time a new exception type
