@@ -4,6 +4,10 @@ do
   local _obj_0 = require("lapis.db.model")
   Model = _obj_0.Model
 end
+local T
+T = function()
+  return true
+end
 local config = require("lapis.config").get()
 local make_schema
 make_schema = function()
@@ -90,17 +94,49 @@ make_schema = function()
   })
   return create_index("exception_requests", "exception_type_id")
 end
+local normalize_error
+do
+  local grammar = nil
+  local make_grammar
+  make_grammar = function()
+    local P, R, Cs
+    do
+      local _obj_0 = require("lpeg")
+      P, R, Cs = _obj_0.P, _obj_0.R, _obj_0.Cs
+    end
+    local make_str
+    make_str = function(delim)
+      local d = P(delim)
+      return d * (P([[\]] * d + (P(1) - d))) ^ 0 * d
+    end
+    local rep
+    rep = function(name)
+      return function()
+        return "[" .. tostring(name) .. "]"
+      end
+    end
+    local num = R("09") ^ 1 * (P(".") * R("09") ^ 1) ^ -1
+    local str = make_str([[']]) + make_str([["]])
+    local line_no = P(":") * num * P(":")
+    local string = P("'") * (P(1) - P("'")) * P("'")
+    grammar = Cs((line_no + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
+  end
+  normalize_error = function(str)
+    if not (grammar) then
+      make_grammar()
+    end
+    local first = str:match("^[^\n]+")
+    return grammar:match(first) or first
+  end
+end
 local ExceptionTypes
 do
   local _parent_0 = Model
   local _base_0 = {
     should_send_email = function(self)
-      do
-        return true
-      end
       local date = require("date")
       local last_occurrence = date.diff(date(true), date(self.updated_at)):spanseconds()
-      return self.created_at == self.updated_at or last_occurrence > 60 * 10
+      return last_occurrence > 60 * 10
     end
   }
   _base_0.__index = _base_0
@@ -130,16 +166,21 @@ do
   _base_0.__class = _class_0
   local self = _class_0
   self.timestamp = true
-  self.normalize_label = function(self, label)
-    return label:match("^([^\n]*)")
+  self.normalize_error = function(self, label)
+    return normalize_error(label)
   end
   self.find_or_create = function(self, label)
-    label = self:normalize_label(label)
-    return self:find({
-      label = label
-    }) or Model.create(self, {
+    label = self:normalize_error(label)
+    local et = self:find({
       label = label
     })
+    if not (et) then
+      et = self:create({
+        label = label
+      })
+      et.should_send_email = T
+    end
+    return et
   end
   if _parent_0.__inherited then
     _parent_0.__inherited(_parent_0, _class_0)
@@ -243,5 +284,6 @@ end
 return {
   ExceptionRequests = ExceptionRequests,
   ExceptionTypes = ExceptionTypes,
-  make_schema = make_schema
+  make_schema = make_schema,
+  normalize_error = normalize_error
 }
