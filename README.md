@@ -9,7 +9,7 @@ Requires `lapis >= 0.0.10`.
 ## Installing
 
 ```bash
-$ luarocks install https://raw.github.com/leafo/lapis-exceptions/master/lapis_exceptions-dev-1.rockspec
+$ luarocks install https://raw.github.com/leafo/lapis-exceptions/master/lapis-exceptions-dev-1.rockspec
 ```
 
 Create the required tables:

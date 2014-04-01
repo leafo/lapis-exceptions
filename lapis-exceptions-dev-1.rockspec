@@ -1,4 +1,4 @@
-package = "lapis_exceptions"
+package = "lapis-exceptions"
 version = "dev-1"
 
 source = {
