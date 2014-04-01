@@ -254,7 +254,8 @@ do
         ip = ip,
         method = method,
         path = path,
-        data = data
+        data = data,
+        label = etype.label
       })
     end
     etype:update({

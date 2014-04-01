@@ -9,12 +9,13 @@ do
   local _parent_0 = Widget
   local _base_0 = {
     subject = function(self)
-      return "[" .. tostring(config.app_name or "lapis") .. " exception] " .. tostring(self.msg)
+      return "[" .. tostring(config.app_name or "lapis") .. " exception] " .. tostring(self.label)
     end,
     content = function(self)
       h2("There was an exception")
       pre(self.msg)
       pre(self.trace)
+      p(os.date("!%c"))
       h2("Request")
       pre(function()
         strong("method: ")
@@ -72,10 +73,6 @@ do
       local _obj_0 = require("helpers.email")
       send_email = _obj_0.send_email
     end
-    io.stdout:write("\n\nsending email to " .. tostring(config.admin_email) .. "\n\n")
-    io.stdout:write(require("moon").dump({
-      self:render(r, ...)
-    }))
     return send_email(config.admin_email, self:render(r, ...))
   end
   self.render = function(self, r, params)

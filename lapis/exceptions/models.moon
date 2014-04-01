@@ -126,7 +126,10 @@ class ExceptionRequests extends Model
 
     if etype\should_send_email!
       ExceptionEmail = require "lapis.exceptions.email"
-      ExceptionEmail\send r, :msg, :trace, :ip, :method, :path, :data
+      ExceptionEmail\send r, {
+        :msg, :trace, :ip, :method, :path, :data
+        label: etype.label
+      }
 
     etype\update count: db.raw "count + 1"
 

@@ -7,9 +7,6 @@ class ExceptionEmail extends Widget
   @send: (r, ...) =>
     return unless config.admin_email
     import send_email from require "helpers.email"
-    io.stdout\write "\n\nsending email to #{config.admin_email}\n\n"
-    io.stdout\write require("moon").dump { @render r, ... }
-
     send_email config.admin_email, @render r, ...
 
   @render: (r, params) =>
@@ -18,12 +15,14 @@ class ExceptionEmail extends Widget
     i\subject!, i\render_to_string!, html: true
 
   subject: =>
-    "[#{config.app_name or "lapis"} exception] #{@msg}"
+    "[#{config.app_name or "lapis"} exception] #{@label}"
 
   content: =>
     h2 "There was an exception"
     pre @msg
     pre @trace
+
+    p os.date "!%c"
 
     h2 "Request"
     pre ->
