@@ -1,4 +1,3 @@
-
 # Lapis exception tracker
 
 This module makes the error handler in Lapis save the errors to database.
@@ -91,7 +90,7 @@ line numbers are left alone.
 
 For example, the following exception message:
 
-    ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = 'yeah and age > 10'
+    ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = 'yeah' and age > 10
 
 Would be normalized to:
 
