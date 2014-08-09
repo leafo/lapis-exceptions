@@ -3,12 +3,10 @@
 This module makes the error handler in Lapis save the errors to database.
 Optionally you can make it email you the exceptions.
 
-Requires `lapis >= 0.0.10`.
-
 ## Installing
 
 ```bash
-$ luarocks install https://raw.github.com/leafo/lapis-exceptions/master/lapis-exceptions-dev-1.rockspec
+$ luarocks install lapis-exceptions
 ```
 
 Create the required tables:
