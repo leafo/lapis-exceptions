@@ -1,8 +1,5 @@
 local Widget
-do
-  local _obj_0 = require("lapis.html")
-  Widget = _obj_0.Widget
-end
+Widget = require("lapis.html").Widget
 local config = require("lapis.config").get()
 local ExceptionEmail
 do
@@ -69,10 +66,7 @@ do
       return 
     end
     local send_email
-    do
-      local _obj_0 = require("helpers.email")
-      send_email = _obj_0.send_email
-    end
+    send_email = require("helpers.email").send_email
     return send_email(config.admin_email, self:render(r, ...))
   end
   self.render = function(self, r, params)

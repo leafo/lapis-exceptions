@@ -1,8 +1,5 @@
 local ExceptionRequests
-do
-  local _obj_0 = require("lapis.exceptions.models")
-  ExceptionRequests = _obj_0.ExceptionRequests
-end
+ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
 local config = require("lapis.config").get()
 return function(app_cls)
   if not (config.track_exceptions) then

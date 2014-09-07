@@ -1,9 +1,6 @@
 local db = require("lapis.db")
 local Model
-do
-  local _obj_0 = require("lapis.db.model")
-  Model = _obj_0.Model
-end
+Model = require("lapis.db.model").Model
 local T
 T = function()
   return true
@@ -262,10 +259,7 @@ do
       count = db.raw("count + 1")
     })
     local to_json
-    do
-      local _obj_0 = require("lapis.util")
-      to_json = _obj_0.to_json
-    end
+    to_json = require("lapis.util").to_json
     return Model.create(self, {
       path = path,
       method = method,
