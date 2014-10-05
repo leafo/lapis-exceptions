@@ -1,6 +1,16 @@
 
 import normalize_error from require "lapis.exceptions.models"
 
+with_query_fn = (q, run) ->
+  db = require "lapis.nginx.postgres"
+  old_query = db.set_backend "raw", q
+  if not run
+    -> db.set_backend "raw", old_query
+  else
+    with run!
+      db.set_backend "raw", old_query
+
+
 errors = {
 [[./lapis/application.lua:589: what the heck
 stack traceback:
@@ -25,4 +35,46 @@ describe "lapis.exceptions", ->
         "./app.lua:246: attempt to index global [STRING] (a nil value)"
         "./lapis/nginx/postgres.lua:51: header part is incomplete: select [NUMBER] from hello_world where name = [STRING]"
       }, [normalize_error err for err in *errors]
+
+  describe "protect", ->
+    local queries, restore_query
+
+    before_each ->
+      queries = {}
+      restore_query = with_query_fn (q) ->
+        table.insert queries, q
+
+        if q\lower!\match "^insert"
+          { {} }
+        else
+          {}
+
+    after_each ->
+      restore_query!
+
+    it "should run a function with no errors", ->
+      import protect from require "lapis.exceptions"
+
+      wrapped = protect ->
+        "a", 2+4, "no"
+
+      a,b,c = wrapped!
+
+      assert.same "a", a
+      assert.same 6, b
+      assert.same "no", c
+
+
+    it "should do something with error function", ->
+      import protect from require "lapis.exceptions"
+
+      wrapped = protect ->
+        a = 1243
+        error "i'm broken"
+        true
+
+      res = wrapped!
+      assert.falsy res
+      assert.same 4, #queries
+
 

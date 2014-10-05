@@ -102,24 +102,33 @@ class ExceptionRequests extends Model
 
   @create: (r, msg, trace, extra_data) =>
     session = require "lapis.session"
-    import req from r
 
-    path = req.parsed_url.path
-    method = req.cmd_mth
-    referer = req.referer
-    ip = req.remote_addr
+    data = {}
+    path = ""
+    method = ""
+    ip = ""
+    referer = ""
 
-    data = {
-      :extra_data
-      cmd_url: req.cmd_url
-      params: r.params
-      session: session.get_session r
-      headers: do
-        copy = { k,v for k,v in pairs(req.headers) }
-        copy.cookie = nil
-        copy.referer = nil
-        copy
-    }
+    if r
+      import req from r
+
+      path = req.parsed_url.path
+      method = req.cmd_mth
+      referer = req.referer
+      ip = req.remote_addr
+
+      data = {
+        :extra_data
+        cmd_url: req.cmd_url
+        params: r.params
+        session: session.get_session r
+        headers: do
+          copy = { k,v for k,v in pairs(req.headers) }
+          copy.cookie = nil
+          copy.referer = nil
+          copy
+      }
+
 
     etype = ExceptionTypes\find_or_create msg
 

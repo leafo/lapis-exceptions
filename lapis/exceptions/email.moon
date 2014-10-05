@@ -11,7 +11,7 @@ class ExceptionEmail extends Widget
 
   @render: (r, params) =>
     i = @(params)
-    i\include_helper r
+    i\include_helper r if r
     i\subject!, i\render_to_string!, html: true
 
   subject: =>

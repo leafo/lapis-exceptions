@@ -19,6 +19,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
+		["lapis.exceptions"] = "lapis/exceptions.lua",
 		["lapis.exceptions.email"] = "lapis/exceptions/email.lua",
 		["lapis.exceptions.models"] = "lapis/exceptions/models.lua",
 		["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",

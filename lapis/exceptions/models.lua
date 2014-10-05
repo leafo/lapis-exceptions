@@ -217,31 +217,38 @@ do
   self.timestamp = true
   self.create = function(self, r, msg, trace, extra_data)
     local session = require("lapis.session")
-    local req
-    req = r.req
-    local path = req.parsed_url.path
-    local method = req.cmd_mth
-    local referer = req.referer
-    local ip = req.remote_addr
-    local data = {
-      extra_data = extra_data,
-      cmd_url = req.cmd_url,
-      params = r.params,
-      session = session.get_session(r),
-      headers = (function()
-        local copy
-        do
-          local _tbl_0 = { }
-          for k, v in pairs(req.headers) do
-            _tbl_0[k] = v
+    local data = { }
+    local path = ""
+    local method = ""
+    local ip = ""
+    local referer = ""
+    if r then
+      local req
+      req = r.req
+      path = req.parsed_url.path
+      method = req.cmd_mth
+      referer = req.referer
+      ip = req.remote_addr
+      data = {
+        extra_data = extra_data,
+        cmd_url = req.cmd_url,
+        params = r.params,
+        session = session.get_session(r),
+        headers = (function()
+          local copy
+          do
+            local _tbl_0 = { }
+            for k, v in pairs(req.headers) do
+              _tbl_0[k] = v
+            end
+            copy = _tbl_0
           end
-          copy = _tbl_0
-        end
-        copy.cookie = nil
-        copy.referer = nil
-        return copy
-      end)()
-    }
+          copy.cookie = nil
+          copy.referer = nil
+          return copy
+        end)()
+      }
+    end
     local etype = ExceptionTypes:find_or_create(msg)
     if etype:should_send_email() then
       local ExceptionEmail = require("lapis.exceptions.email")

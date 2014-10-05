@@ -71,7 +71,9 @@ do
   end
   self.render = function(self, r, params)
     local i = self(params)
-    i:include_helper(r)
+    if r then
+      i:include_helper(r)
+    end
     return i:subject(), i:render_to_string(), {
       html = true
     }
