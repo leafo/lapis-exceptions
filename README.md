@@ -22,7 +22,7 @@ Enable it in your config in the appropriate environments:
 config = require "lapis.config"
 
 config "production", ->
-  exception_tracking true
+  track_exceptions true
 
   -- app_name "My app" --> optional, gives title to emails
   -- admin_email "me@example.com" --> optional, sends email to you
