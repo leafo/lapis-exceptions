@@ -86,13 +86,17 @@ class ExceptionTypes extends Model
   @find_or_create: (label) =>
     label = @normalize_error label
     et = @find(:label)
-    unless et
-      et = @create(:label)
-      et.should_send_email = T
-    et
 
-  -- only send email if one hasn't happened recently
+    if et
+      et, false
+    else
+      et = @create(:label) -- TODO: this can fail
+      et.just_created = true
+      et, true
+
+  -- just created, or one that hasen't happened in 10 minutes
   should_send_email: =>
+    return true if @just_created
     date = require "date"
     last_occurrence = date.diff(date(true), date(@updated_at))\spanseconds!
     last_occurrence > 60*10
@@ -129,10 +133,12 @@ class ExceptionRequests extends Model
           copy
       }
 
+    local should_notify
 
-    etype = ExceptionTypes\find_or_create msg
+    etype, new_type = ExceptionTypes\find_or_create msg
 
     if etype\should_send_email!
+      should_notify = true
       ExceptionEmail = require "lapis.exceptions.email"
       ExceptionEmail\send r, {
         :msg, :trace, :ip, :method, :path, :data
@@ -143,12 +149,14 @@ class ExceptionRequests extends Model
 
     import to_json from require "lapis.util"
 
-    Model.create @, {
+    ereq = Model.create @, {
       :path, :method, :ip, :msg, :trace,
 
       exception_type_id: etype.id
       data: to_json data
       referer: referer != "" and referer or nil
     }
+
+    ereq, etype, new_type, should_notify
 
 { :ExceptionRequests, :ExceptionTypes, :make_schema, :normalize_error }

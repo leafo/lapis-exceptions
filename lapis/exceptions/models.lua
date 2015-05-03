@@ -131,6 +131,9 @@ do
   local _parent_0 = Model
   local _base_0 = {
     should_send_email = function(self)
+      if self.just_created then
+        return true
+      end
       local date = require("date")
       local last_occurrence = date.diff(date(true), date(self.updated_at)):spanseconds()
       return last_occurrence > 60 * 10
@@ -171,13 +174,15 @@ do
     local et = self:find({
       label = label
     })
-    if not (et) then
+    if et then
+      return et, false
+    else
       et = self:create({
         label = label
       })
-      et.should_send_email = T
+      et.just_created = true
+      return et, true
     end
-    return et
   end
   if _parent_0.__inherited then
     _parent_0.__inherited(_parent_0, _class_0)
@@ -249,8 +254,10 @@ do
         end)()
       }
     end
-    local etype = ExceptionTypes:find_or_create(msg)
+    local should_notify
+    local etype, new_type = ExceptionTypes:find_or_create(msg)
     if etype:should_send_email() then
+      should_notify = true
       local ExceptionEmail = require("lapis.exceptions.email")
       ExceptionEmail:send(r, {
         msg = msg,
@@ -267,7 +274,7 @@ do
     })
     local to_json
     to_json = require("lapis.util").to_json
-    return Model.create(self, {
+    local ereq = Model.create(self, {
       path = path,
       method = method,
       ip = ip,
@@ -277,6 +284,7 @@ do
       data = to_json(data),
       referer = referer ~= "" and referer or nil
     })
+    return ereq, etype, new_type, should_notify
   end
   if _parent_0.__inherited then
     _parent_0.__inherited(_parent_0, _class_0)
