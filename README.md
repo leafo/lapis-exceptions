@@ -9,25 +9,21 @@ Optionally you can make it email you the exceptions.
 $ luarocks install lapis-exceptions
 ```
 
-Create the required tables:
+Add a new migration to your app to create the required tables:
 
 ```moonscript
 require("lapis.exceptions.models").make_schema!
 ```
 
-Enable it in your config in the appropriate environments:
+Create a new migration that look like this:
 
-```moon
--- config.moon
-config = require "lapis.config"
+```lua
+-- migrations.moon/lua
+{
+  ...
 
-config "production", ->
-  track_exceptions true
-
-  -- app_name "My app" --> optional, gives title to emails
-  -- admin_email "me@example.com" --> optional, sends email to you
-
--- ...
+  [1439944992]: require("lapis.exceptions.schema").run_migrations
+}
 ```
 
 Enable it in your top level app by calling `@enable`:
@@ -39,10 +35,25 @@ class App extends lapis.Application
   -- ...
 ```
 
+Lastly, add to `track_exceptions true` to each environment you want the
+exception tracking to happen, along with any other optional configuration:
+
+```moon
+-- config.moon
+config = require "lapis.config"
+
+config "production", ->
+  track_exceptions true
+
+  -- app_name "My app" --> optional, gives title to emails
+  -- admin_email "me@example.com" --> optional, sends email to you
+  -- ...
+```
+
 ## Emails
 
-Lapis doesn't have a proper email sending interface yet, in order for mail to
-work you need to provide your own `send_mail` function.
+Lapis doesn't have a standardized email sending interface yet, in order for
+mail to work you need to provide your own `send_mail` function.
 
 The exception mailer will look for a module called `helpers.email` and it
 should contain a function called `send_email` that takes as arguments the
@@ -82,9 +93,9 @@ import ExceptionTypes, ExceptionRequests from require "lapis.exceptions.models"
 ## Exception grouping
 
 Exceptions are grouped by their exception message in order to reduce the amount
-of emails triggered. A normalized exception message is stored in the
-`ExceptionTypes` table. Numbers and strings are replaced by generic identifiers,
-line numbers are left alone.
+of top level issues created. A normalized exception message is stored in the
+`ExceptionTypes` table. Numbers and strings are replaced by generic
+identifiers, line numbers are left alone.
 
 For example, the following exception message:
 
@@ -98,8 +109,8 @@ Before being stored in the database.
 
 # Contact
 
-Author: Leaf Corcoran (leafo) ([@moonscript](http://twitter.com/moonscript))  
-Email: leafot@gmail.com  
-Homepage: <http://leafo.net>  
+Author: Leaf Corcoran (leafo) ([@moonscript](http://twitter.com/moonscript))
+Email: leafot@gmail.com
+Homepage: <http://leafo.net>
 License: MIT
 
