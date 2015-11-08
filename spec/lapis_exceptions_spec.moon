@@ -1,15 +1,22 @@
 
-import normalize_error from require "lapis.exceptions.models"
+config = require "lapis.config"
+
+config "test", ->
+  postgres {
+    database: "lapis_exceptions_test"
+  }
+
+import exec from require "lapis.cmd.path"
+import use_test_env from require "lapis.spec"
 
 with_query_fn = (q, run) ->
-  db = require "lapis.nginx.postgres"
+  db = require "lapis.db.postgres"
   old_query = db.set_backend "raw", q
   if not run
     -> db.set_backend "raw", old_query
   else
     with run!
       db.set_backend "raw", old_query
-
 
 errors = {
 [[./lapis/application.lua:589: what the heck
@@ -27,8 +34,16 @@ stack traceback:
 }
 
 describe "lapis.exceptions", ->
+  use_test_env!
+
+  describe "with database", ->
+    setup ->
+      exec "dropdb -U postgres lapis_exceptions_test &> /dev/null"
+      exec "createdb -U postgres lapis_exceptions_test"
+
   describe "normalize label", ->
     it "should normalize label", ->
+      import normalize_error from require "lapis.exceptions.models"
       assert.same {
         "./lapis/application.lua:589: what the heck"
         "./lapis/application.lua:589: ./app.lua:235: attempt to index global [STRING] (a nil value)"
