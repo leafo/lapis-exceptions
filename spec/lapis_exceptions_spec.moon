@@ -40,6 +40,11 @@ describe "lapis.exceptions", ->
     setup ->
       exec "dropdb -U postgres lapis_exceptions_test &> /dev/null"
       exec "createdb -U postgres lapis_exceptions_test"
+      require("lapis.exceptions.schema").run_migrations!
+
+    it "something", ->
+      import ExceptionRequests from require "lapis.exceptions.models"
+      assert.same {}, ExceptionRequests\select!
 
   describe "normalize label", ->
     it "should normalize label", ->
