@@ -37,14 +37,20 @@ describe "lapis.exceptions", ->
   use_test_env!
 
   describe "with database", ->
+    import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+
     setup ->
       exec "dropdb -U postgres lapis_exceptions_test &> /dev/null"
       exec "createdb -U postgres lapis_exceptions_test"
       require("lapis.exceptions.schema").run_migrations!
 
-    it "something", ->
-      import ExceptionRequests from require "lapis.exceptions.models"
+    it "fetches empty exceptions", ->
       assert.same {}, ExceptionRequests\select!
+
+    it "creates a new exception request", ->
+      ExceptionRequests\create nil, "There was a problem", "lua:123"
+      assert.same 1, ExceptionRequests\count!
+      assert.same 1, ExceptionTypes\count!
 
   describe "normalize label", ->
     it "should normalize label", ->
