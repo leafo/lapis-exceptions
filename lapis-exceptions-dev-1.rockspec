@@ -21,6 +21,7 @@ build = {
   modules = {
     ["lapis.exceptions"] = "lapis/exceptions.lua",
     ["lapis.exceptions.email"] = "lapis/exceptions/email.lua",
+    ["lapis.exceptions.flow"] = "lapis/exceptions/flow.lua",
     ["lapis.exceptions.migrations"] = "lapis/exceptions/migrations.lua",
     ["lapis.exceptions.models"] = "lapis/exceptions/models.lua",
     ["lapis.exceptions.schema"] = "lapis/exceptions/schema.lua",
