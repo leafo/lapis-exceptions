@@ -12,6 +12,20 @@ do
   local _parent_0 = Flow
   local _base_0 = {
     expose_assigns = true,
+    exception_types = function(self)
+      assert_valid(self.params, {
+        {
+          "page",
+          is_integer = true,
+          optional = true
+        }
+      })
+      self.pager = ExceptionTypes:paginated("order by updated_at desc", {
+        per_page = 50
+      })
+      self.page = tonumber(self.params.page) or 1
+      self.exception_types = self.pager:get_page(self.page)
+    end,
     exception_requests = function(self)
       assert_valid(self.params, {
         {
@@ -26,7 +40,16 @@ do
       })
       self.exception_type = ExceptionTypes:find(self.params.exception_type_id)
       self.pager = ExceptionRequests:paginated([[      where exception_type_id = ? order by created_at desc
-    ]], self.params.exception_type_id)
+    ]], self.params.exception_type_id, {
+        per_page = 30,
+        prepare_results = function(self, ereqs)
+          for _index_0 = 1, #ereqs do
+            local e = ereqs[_index_0]
+            e.exception_type = self.exception_type
+          end
+          return ereqs
+        end
+      })
       self.page = tonumber(self.params.page) or 1
       self.exceptions = self.pager:get_page(self.page)
     end
