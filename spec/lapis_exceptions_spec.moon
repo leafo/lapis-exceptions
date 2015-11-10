@@ -54,13 +54,13 @@ describe "lapis.exceptions", ->
 
   describe "normalize label", ->
     it "should normalize label", ->
-      import normalize_error from require "lapis.exceptions.models"
+      import ExceptionTypes from require "lapis.exceptions.models"
       assert.same {
         "./lapis/application.lua:589: what the heck"
         "./lapis/application.lua:589: ./app.lua:235: attempt to index global [STRING] (a nil value)"
         "./app.lua:246: attempt to index global [STRING] (a nil value)"
         "./lapis/nginx/postgres.lua:51: header part is incomplete: select [NUMBER] from hello_world where name = [STRING]"
-      }, [normalize_error err for err in *errors]
+      }, [ExceptionTypes\normalize_error err for err in *errors]
 
   describe "protect", ->
     local queries, restore_query

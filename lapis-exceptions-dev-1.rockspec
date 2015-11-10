@@ -23,7 +23,10 @@ build = {
     ["lapis.exceptions.email"] = "lapis/exceptions/email.lua",
     ["lapis.exceptions.flow"] = "lapis/exceptions/flow.lua",
     ["lapis.exceptions.migrations"] = "lapis/exceptions/migrations.lua",
+    ["lapis.exceptions.model"] = "lapis/exceptions/model.lua",
     ["lapis.exceptions.models"] = "lapis/exceptions/models.lua",
+    ["lapis.exceptions.models.exception_requests"] = "lapis/exceptions/models/exception_requests.lua",
+    ["lapis.exceptions.models.exception_types"] = "lapis/exceptions/models/exception_types.lua",
     ["lapis.exceptions.schema"] = "lapis/exceptions/schema.lua",
     ["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",
   }
