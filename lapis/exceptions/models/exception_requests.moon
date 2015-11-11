@@ -52,7 +52,6 @@ class ExceptionRequests extends Model
 
     ereq = Model.create @, {
       :path, :method, :ip, :msg, :trace,
-
       exception_type_id: etype.id
       data: to_json data
       referer: referer != "" and referer or nil

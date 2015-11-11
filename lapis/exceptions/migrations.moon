@@ -1,5 +1,5 @@
 schema = require "lapis.db.schema"
-import create_table, create_index from schema
+import create_table, create_index, add_column from schema
 
 import
   serial
@@ -8,6 +8,7 @@ import
   time
   integer
   foreign_key
+  enum
   from schema.types
 
 {
@@ -49,5 +50,9 @@ import
     }
 
     create_index "exception_requests", "exception_type_id"
+
+  [1446941278]: =>
+    add_column "exception_types", "status", enum
+
 }
 

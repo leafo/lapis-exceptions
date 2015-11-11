@@ -1,6 +1,8 @@
 local db = require("lapis.db")
 local Model
 Model = require("lapis.exceptions.model").Model
+local enum
+enum = require("lapis.db.model").enum
 local normalize_error
 do
   local grammar = nil
@@ -78,6 +80,18 @@ do
   self.timestamp = true
   self.normalize_error = function(self, label)
     return normalize_error(label)
+  end
+  self.statuses = enum({
+    default = 1,
+    resolved = 2,
+    ignored = 3
+  })
+  self.create = function(self, opts)
+    if opts == nil then
+      opts = { }
+    end
+    opts.status = opts.status or self.statuses:for_db("default")
+    return Model.create(self, opts)
   end
   self.find_or_create = function(self, label)
     label = self:normalize_error(label)

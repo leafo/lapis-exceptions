@@ -1,10 +1,10 @@
 local schema = require("lapis.db.schema")
-local create_table, create_index
-create_table, create_index = schema.create_table, schema.create_index
-local serial, varchar, text, time, integer, foreign_key
+local create_table, create_index, add_column
+create_table, create_index, add_column = schema.create_table, schema.create_index, schema.add_column
+local serial, varchar, text, time, integer, foreign_key, enum
 do
   local _obj_0 = schema.types
-  serial, varchar, text, time, integer, foreign_key = _obj_0.serial, _obj_0.varchar, _obj_0.text, _obj_0.time, _obj_0.integer, _obj_0.foreign_key
+  serial, varchar, text, time, integer, foreign_key, enum = _obj_0.serial, _obj_0.varchar, _obj_0.text, _obj_0.time, _obj_0.integer, _obj_0.foreign_key, _obj_0.enum
 end
 return {
   [1446940278] = function(self)
@@ -87,5 +87,8 @@ return {
       "PRIMARY KEY (id)"
     })
     return create_index("exception_requests", "exception_type_id")
+  end,
+  [1446941278] = function(self)
+    return add_column("exception_types", "status", enum)
   end
 }

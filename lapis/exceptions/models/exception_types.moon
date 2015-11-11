@@ -1,5 +1,6 @@
 db = require "lapis.db"
 import Model from require "lapis.exceptions.model"
+import enum from require "lapis.db.model"
 
 normalize_error = do
   grammar = nil
@@ -30,6 +31,16 @@ class ExceptionTypes extends Model
   @timestamp: true
 
   @normalize_error = (label) => normalize_error label
+
+  @statuses: enum {
+    default: 1
+    resolved: 2
+    ignored: 3
+  }
+
+  @create: (opts={}) =>
+    opts.status or= @statuses\for_db "default"
+    Model.create @, opts
 
   @find_or_create: (label) =>
     label = @normalize_error label
