@@ -49,6 +49,16 @@ do
       local date = require("date")
       local last_occurrence = date.diff(date(true), date(self.updated_at)):spanseconds()
       return last_occurrence > 60 * 10
+    end,
+    delete = function(self)
+      local ExceptionRequests
+      ExceptionRequests = require("models").ExceptionRequests
+      if _parent_0.delete(self) then
+        db.delete(ExceptionRequests:table_name(), {
+          exception_type_id = self.id
+        })
+        return true
+      end
     end
   }
   _base_0.__index = _base_0
