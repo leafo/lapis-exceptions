@@ -52,7 +52,7 @@ do
     end,
     delete = function(self)
       local ExceptionRequests
-      ExceptionRequests = require("models").ExceptionRequests
+      ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
       if _parent_0.delete(self) then
         db.delete(ExceptionRequests:table_name(), {
           exception_type_id = self.id
