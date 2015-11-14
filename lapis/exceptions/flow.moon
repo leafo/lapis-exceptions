@@ -42,7 +42,6 @@ class ExceptionFlow extends Flow
 
     @find_exception_type!
 
-
     @pager = ExceptionRequests\paginated [[
       where exception_type_id = ? order by created_at desc
     ]], @params.exception_type_id, {

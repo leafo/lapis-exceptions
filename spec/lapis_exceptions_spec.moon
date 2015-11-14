@@ -6,7 +6,6 @@ config "test", ->
     database: "lapis_exceptions_test"
   }
 
-import exec from require "lapis.cmd.path"
 import use_test_env from require "lapis.spec"
 
 with_query_fn = (q, run) ->
@@ -39,10 +38,7 @@ describe "lapis.exceptions", ->
   describe "with database", ->
     import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 
-    setup ->
-      exec "dropdb -U postgres lapis_exceptions_test &> /dev/null"
-      exec "createdb -U postgres lapis_exceptions_test"
-      require("lapis.exceptions.schema").run_migrations!
+    setup require("spec.helpers").create_db
 
     it "fetches empty exceptions", ->
       assert.same {}, ExceptionRequests\select!
