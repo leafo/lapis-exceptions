@@ -20,4 +20,4 @@ class TestApp extends Application
     res
 
 
-{ :TestApp }
+{ :TestApp, :create_db }

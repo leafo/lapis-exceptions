@@ -19,8 +19,8 @@ describe "lapis.exceptions.flow", ->
   setup require("spec.helpers").create_db
 
   before_each ->
-    truncate_tables ExceptionRequests, ExceptionTypes
     import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+    truncate_tables ExceptionRequests, ExceptionTypes
 
   it "browses exception types", ->
     App\get "/"

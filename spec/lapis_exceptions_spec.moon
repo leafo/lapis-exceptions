@@ -8,6 +8,8 @@ config "test", ->
 
 import use_test_env from require "lapis.spec"
 
+import truncate_tables from require "lapis.spec.db"
+
 with_query_fn = (q, run) ->
   db = require "lapis.db.postgres"
   old_query = db.set_backend "raw", q
@@ -39,6 +41,9 @@ describe "lapis.exceptions", ->
     import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 
     setup require("spec.helpers").create_db
+
+    before_each ->
+      truncate_tables ExceptionRequests, ExceptionTypes
 
     it "fetches empty exceptions", ->
       assert.same {}, ExceptionRequests\select!
