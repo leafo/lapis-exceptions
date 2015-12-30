@@ -4,7 +4,14 @@ import Model from require "lapis.exceptions.model"
 class ExceptionRequests extends Model
   @timestamp: true
 
-  @create: (r, msg, trace, extra_data) =>
+  @relations: {
+    {"exception_type", belongs_to: "ExceptionTypes"}
+  }
+
+  @create: (opts={}) =>
+    {:req, :msg, :trace, :extra_data} = opts
+    assert msg, "missing exception message"
+
     session = require "lapis.session"
 
     data = {}
@@ -13,21 +20,20 @@ class ExceptionRequests extends Model
     ip = ""
     referer = ""
 
-    if r
-      import req from r
-
-      path = req.parsed_url.path
-      method = req.cmd_mth
-      referer = req.referer
-      ip = req.remote_addr
+    if req
+      path = req.req.parsed_url.path
+      method = req.req.cmd_mth
+      referer = req.req.referer
+      ip = req.req.remote_addr
 
       data = {
         :extra_data
-        cmd_url: req.cmd_url
-        params: r.params
+        cmd_url: req.req.cmd_url
+        params: req.params
         session: session.get_session r
+        body: ngx and ngx.req.get_body_data!
         headers: do
-          copy = { k,v for k,v in pairs(req.headers) }
+          copy = { k,v for k,v in pairs(req.req.headers) }
           copy.cookie = nil
           copy.referer = nil
           copy
@@ -38,8 +44,9 @@ class ExceptionRequests extends Model
     import ExceptionTypes from require "lapis.exceptions.models"
     etype, new_type = ExceptionTypes\find_or_create msg
 
-    if etype\should_send_email!
-      should_notify = true
+    should_notify = etype\should_send_email!
+
+    if should_notify
       ExceptionEmail = require "lapis.exceptions.email"
       ExceptionEmail\send r, {
         :msg, :trace, :ip, :method, :path, :data
@@ -50,7 +57,7 @@ class ExceptionRequests extends Model
 
     import to_json from require "lapis.util"
 
-    ereq = Model.create @, {
+    ereq = super {
       :path, :method, :ip, :msg, :trace,
       exception_type_id: etype.id
       data: to_json data
@@ -58,4 +65,3 @@ class ExceptionRequests extends Model
     }
 
     ereq, etype, new_type, should_notify
-

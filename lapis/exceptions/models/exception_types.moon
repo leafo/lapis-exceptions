@@ -23,7 +23,6 @@ normalize_error = do
 
   (str) ->
     make_grammar! unless grammar
-
     first = str\match "^[^\n]+"
     grammar\match(first) or first
 
@@ -40,7 +39,7 @@ class ExceptionTypes extends Model
 
   @create: (opts={}) =>
     opts.status or= @statuses\for_db "default"
-    Model.create @, opts
+    super opts
 
   @find_or_create: (label) =>
     label = @normalize_error label
