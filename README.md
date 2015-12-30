@@ -1,5 +1,7 @@
 # Lapis exception tracker
 
+[![Build Status](https://travis-ci.org/leafo/lapis-exceptions.svg?branch=master)](https://travis-ci.org/leafo/lapis-exceptions)
+
 This module makes the error handler in Lapis save the errors to database.
 Optionally you can make it email you the exceptions.
 
