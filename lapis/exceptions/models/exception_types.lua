@@ -95,6 +95,12 @@ do
   self.normalize_error = function(self, label)
     return normalize_error(label)
   end
+  self.relations = {
+    {
+      "exception_requests",
+      has_many = "ExceptionRequests"
+    }
+  }
   self.statuses = enum({
     default = 1,
     resolved = 2,
@@ -104,7 +110,7 @@ do
     if opts == nil then
       opts = { }
     end
-    opts.status = opts.status or self.statuses:for_db("default")
+    opts.status = opts.status or self.statuses:for_db(opts.status or "default")
     return _class_0.__parent.create(self, opts)
   end
   self.find_or_create = function(self, label)

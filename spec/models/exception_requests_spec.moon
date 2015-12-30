@@ -13,7 +13,7 @@ import truncate_tables from require "lapis.spec.db"
 
 factory = require "spec.factory"
 
-describe "lapis.exceptions.flow", ->
+describe "lapis.models.exception_requests", ->
   use_test_env!
   setup require("spec.helpers").create_db
 
@@ -32,6 +32,9 @@ describe "lapis.exceptions.flow", ->
 
     etype = ereq\get_exception_type!
     assert.truthy etype
+
+    reqs = etype\get_exception_requests!
+    assert.same 1, #reqs
 
   it "creates an exception requests from a mocked lapis requst", ->
     ereq = mock_action lapis.Application, "/hello-world?cool=zone", =>

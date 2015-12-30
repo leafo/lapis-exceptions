@@ -9,6 +9,7 @@ ExceptionRequests = (opts={}) ->
   assert models.ExceptionRequests\create opts
 
 ExceptionTypes = (opts) ->
-  error "not yet"
+  opts.label or= "Some exception #{random_string 10}"
+  assert models.ExceptionRequests opts
 
 {:ExceptionRequests, :ExceptionTypes}

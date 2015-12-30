@@ -31,6 +31,10 @@ class ExceptionTypes extends Model
 
   @normalize_error = (label) => normalize_error label
 
+  @relations: {
+    {"exception_requests", has_many: "ExceptionRequests"}
+  }
+
   @statuses: enum {
     default: 1
     resolved: 2
@@ -38,7 +42,7 @@ class ExceptionTypes extends Model
   }
 
   @create: (opts={}) =>
-    opts.status or= @statuses\for_db "default"
+    opts.status or= @statuses\for_db opts.status or "default"
     super opts
 
   @find_or_create: (label) =>
