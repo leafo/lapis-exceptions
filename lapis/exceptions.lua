@@ -17,7 +17,10 @@ protect = function(fn)
     }
     if not (result[1]) then
       pcall(function()
-        return ExceptionRequests:create(nil, err, trace)
+        return ExceptionRequests:create({
+          msg = err,
+          trace = trace
+        })
       end)
       return nil, err, trace
     end

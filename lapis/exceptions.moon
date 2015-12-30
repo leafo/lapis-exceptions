@@ -12,7 +12,11 @@ protect = (fn) ->
     }
 
     unless result[1]
-      pcall -> ExceptionRequests\create nil, err, trace
+      pcall -> ExceptionRequests\create {
+        msg: err
+        :trace
+      }
+
       return nil, err, trace
 
     unpack result, 2

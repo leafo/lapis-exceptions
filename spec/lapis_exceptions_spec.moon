@@ -75,7 +75,6 @@ describe "lapis.exceptions", ->
       assert.same 6, b
       assert.same "no", c
 
-
     it "should do something with error function", ->
       import protect from require "lapis.exceptions"
 
