@@ -54,7 +54,7 @@ import
     create_index "exception_requests", "exception_type_id"
 
   [1446941278]: =>
-    add_column "exception_types", "status", enum defaut: 1
+    add_column "exception_types", "status", enum default: 1
 
   [1451464107]: =>
     for col in *{

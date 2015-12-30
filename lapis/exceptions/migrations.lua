@@ -91,7 +91,7 @@ return {
   end,
   [1446941278] = function(self)
     return add_column("exception_types", "status", enum({
-      defaut = 1
+      default = 1
     }))
   end,
   [1451464107] = function(self)
