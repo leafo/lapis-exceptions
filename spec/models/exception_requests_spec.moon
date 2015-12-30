@@ -1,5 +1,8 @@
 config = require "lapis.config"
 
+lapis = require "lapis"
+import mock_action from require "lapis.spec.request"
+
 config "test", ->
   postgres {
     database: "lapis_exceptions_test"
@@ -31,12 +34,8 @@ describe "lapis.exceptions.flow", ->
     assert.truthy etype
 
   it "creates an exception requests from a mocked lapis requst", ->
-    lapis = require "lapis"
-    import mock_action from require "lapis.spec.request"
-
-    local ereq
-    mock_action lapis.Application, "/hello-world?cool=zone", =>
-      ereq = factory.ExceptionRequests req: @
+    ereq = mock_action lapis.Application, "/hello-world?cool=zone", =>
+      factory.ExceptionRequests req: @
 
     assert.same "/hello-world", ereq.path
     assert.same "127.0.0.1", ereq.ip
@@ -54,4 +53,27 @@ describe "lapis.exceptions.flow", ->
       }
       session: { }
     }, data
+
+  describe "with email", ->
+    local last_email
+
+    before_each ->
+      config.get!.admin_email = "leafo@example.com"
+      package.loaded["helpers.email"] = {
+        send_email: (...) ->
+          last_email = { ... }
+      }
+
+    after_each ->
+      config.get!.admin_email = nil
+      package.loaded["helpers.email"] = nil
+
+    it "sends exception email", ->
+      ereq = mock_action lapis.Application, "/hello-world", =>
+        factory.ExceptionRequests req: @
+
+      email, subject, body, opts = unpack last_email
+      assert.same "leafo@example.com", email
+      assert.same {html: true}, opts
+
 
