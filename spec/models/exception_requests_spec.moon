@@ -58,6 +58,7 @@ describe "lapis.exceptions.flow", ->
     local last_email
 
     before_each ->
+      last_email = nil
       config.get!.admin_email = "leafo@example.com"
       package.loaded["helpers.email"] = {
         send_email: (...) ->
@@ -69,11 +70,20 @@ describe "lapis.exceptions.flow", ->
       package.loaded["helpers.email"] = nil
 
     it "sends exception email", ->
+      factory.ExceptionRequests req: @
+      assert.truthy last_email
+      email, subject, body, opts = unpack last_email
+      assert.same "leafo@example.com", email
+
+    it "sends exception email for request", ->
       ereq = mock_action lapis.Application, "/hello-world", =>
         factory.ExceptionRequests req: @
+
+      assert.truthy last_email
 
       email, subject, body, opts = unpack last_email
       assert.same "leafo@example.com", email
       assert.same {html: true}, opts
+
 
 

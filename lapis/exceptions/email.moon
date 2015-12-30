@@ -29,21 +29,24 @@ class ExceptionEmail extends Widget
 
     p "The exception happened #{os.date "!%c"}"
 
-    h2 "Request"
-    pre ->
-      strong "method: "
-      text @exception_request.method
+    if @exception_request.method
+      h2 "Request"
+      pre ->
+        strong "method: "
+        text @exception_request.method
 
-    pre ->
-      strong "path: "
-      text @exception_request.path
+      pre ->
+        strong "path: "
+        text @exception_request.path
 
-    pre ->
-      strong "ip: "
-      text @exception_request.ip
+      pre ->
+        strong "ip: "
+        text @exception_request.ip
 
-    moon = require "moon"
-    pre ->
-      text moon.dump @exception_request\get_data!
+    data = @exception_request\get_data!
+    if next data
+      moon = require "moon"
+      pre ->
+        text moon.dump
 
 
