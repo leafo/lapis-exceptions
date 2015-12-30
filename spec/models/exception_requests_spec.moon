@@ -1,26 +1,18 @@
-config = require "lapis.config"
 
 lapis = require "lapis"
 import mock_action from require "lapis.spec.request"
-
-config "test", ->
-  postgres {
-    database: "lapis_exceptions_test"
-  }
 
 import use_test_env from require "lapis.spec"
 import truncate_tables from require "lapis.spec.db"
 
 factory = require "spec.factory"
 
+import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+
 describe "lapis.models.exception_requests", ->
   use_test_env!
-  setup require("spec.helpers").create_db
-
-  local ExceptionRequests, ExceptionTypes
 
   before_each ->
-    {:ExceptionRequests, :ExceptionTypes} = require "lapis.exceptions.models"
     truncate_tables ExceptionRequests, ExceptionTypes
 
   it "fetches empty exceptions", ->
@@ -75,6 +67,7 @@ describe "lapis.models.exception_requests", ->
 
   describe "with email", ->
     local last_email
+    config = require "lapis.config"
 
     before_each ->
       last_email = nil

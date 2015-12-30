@@ -1,6 +1,6 @@
 
 test:
-	busted
+	busted --helper=spec/setup_db.moon
 
 lint: build
 	moonc -l lapis
