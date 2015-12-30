@@ -36,20 +36,9 @@ class ExceptionRequests extends Model
           copy
       }
 
-    local should_notify
-
     import ExceptionTypes from require "lapis.exceptions.models"
+
     etype, new_type = ExceptionTypes\find_or_create msg
-
-    should_notify = etype\should_send_email!
-
-    if should_notify and req
-      ExceptionEmail = require "lapis.exceptions.email"
-      ExceptionEmail\send req, {
-        :msg, :trace, :ip, :method, :path, :data
-        label: etype.label
-      }
-
     etype\update count: db.raw "count + 1"
 
     import to_json from require "lapis.util"
@@ -61,7 +50,21 @@ class ExceptionRequests extends Model
       referer: referer != "" and referer or nil
     }
 
-    ereq, etype, new_type, should_notify
+    -- preload the relation
+    ereq.exception_type = etype
+
+    should_notify = etype\should_send_email!
+
+    if should_notify
+      ereq\send_email @
+
+    ereq, new_type, should_notify
+
+  send_email: (req) =>
+    ExceptionEmail = require "lapis.exceptions.email"
+    ExceptionEmail\send req, {
+      exception_request: @
+    }
 
   get_data: =>
     import from_json from require "lapis.util"

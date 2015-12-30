@@ -6,6 +6,12 @@ do
   local _class_0
   local _parent_0 = Model
   local _base_0 = {
+    send_email = function(self, req)
+      local ExceptionEmail = require("lapis.exceptions.email")
+      return ExceptionEmail:send(req, {
+        exception_request = self
+      })
+    end,
     get_data = function(self)
       local from_json
       from_json = require("lapis.util").from_json
@@ -84,23 +90,9 @@ do
         end)()
       }
     end
-    local should_notify
     local ExceptionTypes
     ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
     local etype, new_type = ExceptionTypes:find_or_create(msg)
-    should_notify = etype:should_send_email()
-    if should_notify and req then
-      local ExceptionEmail = require("lapis.exceptions.email")
-      ExceptionEmail:send(req, {
-        msg = msg,
-        trace = trace,
-        ip = ip,
-        method = method,
-        path = path,
-        data = data,
-        label = etype.label
-      })
-    end
     etype:update({
       count = db.raw("count + 1")
     })
@@ -116,7 +108,12 @@ do
       data = to_json(data),
       referer = referer ~= "" and referer or nil
     })
-    return ereq, etype, new_type, should_notify
+    ereq.exception_type = etype
+    local should_notify = etype:should_send_email()
+    if should_notify then
+      ereq:send_email(self)
+    end
+    return ereq, new_type, should_notify
   end
   if _parent_0.__inherited then
     _parent_0.__inherited(_parent_0, _class_0)

@@ -22,6 +22,11 @@ describe "lapis.exceptions.flow", ->
     ereq = factory.ExceptionRequests!
     assert.truthy ereq.msg
     assert.truthy ereq.trace
+
+    assert.nil ereq.path
+    assert.nil ereq.ip
+    assert.nil ereq.method
+
     etype = ereq\get_exception_type!
     assert.truthy etype
 
@@ -32,6 +37,10 @@ describe "lapis.exceptions.flow", ->
     local ereq
     mock_action lapis.Application, "/hello-world?cool=zone", =>
       ereq = factory.ExceptionRequests req: @
+
+    assert.same "/hello-world", ereq.path
+    assert.same "127.0.0.1", ereq.ip
+    assert.same "GET", ereq.method
 
     data = ereq\get_data!
     assert.same {
@@ -45,3 +54,4 @@ describe "lapis.exceptions.flow", ->
       }
       session: { }
     }, data
+

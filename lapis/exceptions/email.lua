@@ -7,33 +7,32 @@ do
   local _parent_0 = Widget
   local _base_0 = {
     subject = function(self)
-      return "[" .. tostring(config.app_name or "lapis") .. " exception] " .. tostring(self.label)
+      local etype = self.exception_request:get_exception_type()
+      return "[" .. tostring(config.app_name or "lapis") .. " exception] " .. tostring(etype.label)
     end,
     content = function(self)
+      local etype = self.exception_request:get_exception_type()
       h2("There was an exception")
-      pre(self.msg)
-      pre(self.trace)
+      pre(self.exception_request.msg)
+      pre(self.exception_request.trace)
       p("The exception happened " .. tostring(os.date("!%c")))
       h2("Request")
       pre(function()
         strong("method: ")
-        return text(self.method)
+        return text(self.exception_request.method)
       end)
       pre(function()
         strong("path: ")
-        return text(self.path)
+        return text(self.exception_request.path)
       end)
       pre(function()
         strong("ip: ")
-        return text(self.ip)
+        return text(self.exception_request.ip)
       end)
       local moon = require("moon")
-      for k, v in pairs(self.data) do
-        pre(function()
-          strong(tostring(k) .. ": ")
-          return text(moon.dump(v))
-        end)
-      end
+      return pre(function()
+        return text(moon.dump(self.exception_request:get_data()))
+      end)
     end
   }
   _base_0.__index = _base_0
@@ -82,6 +81,9 @@ do
       html = true
     }
   end
+  self.needs = {
+    "exception_request"
+  }
   if _parent_0.__inherited then
     _parent_0.__inherited(_parent_0, _class_0)
   end

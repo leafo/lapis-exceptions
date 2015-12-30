@@ -14,33 +14,36 @@ class ExceptionEmail extends Widget
     i\include_helper r if r
     i\subject!, i\render_to_string!, html: true
 
+  @needs: {"exception_request"}
+
   subject: =>
-    "[#{config.app_name or "lapis"} exception] #{@label}"
+    etype = @exception_request\get_exception_type!
+    "[#{config.app_name or "lapis"} exception] #{etype.label}"
 
   content: =>
+    etype = @exception_request\get_exception_type!
+
     h2 "There was an exception"
-    pre @msg
-    pre @trace
+    pre @exception_request.msg
+    pre @exception_request.trace
 
     p "The exception happened #{os.date "!%c"}"
 
     h2 "Request"
     pre ->
       strong "method: "
-      text @method
+      text @exception_request.method
 
     pre ->
       strong "path: "
-      text @path
+      text @exception_request.path
 
     pre ->
       strong "ip: "
-      text @ip
+      text @exception_request.ip
 
     moon = require "moon"
-    for k,v in pairs @data
-      pre ->
-        strong "#{k}: "
-        text moon.dump v
+    pre ->
+      text moon.dump @exception_request\get_data!
 
 
