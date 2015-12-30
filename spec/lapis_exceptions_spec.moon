@@ -1,23 +1,5 @@
-
-config = require "lapis.config"
-
-config "test", ->
-  postgres {
-    database: "lapis_exceptions_test"
-  }
-
 import use_test_env from require "lapis.spec"
-
 import truncate_tables from require "lapis.spec.db"
-
-with_query_fn = (q, run) ->
-  db = require "lapis.db.postgres"
-  old_query = db.set_backend "raw", q
-  if not run
-    -> db.set_backend "raw", old_query
-  else
-    with run!
-      db.set_backend "raw", old_query
 
 errors = {
 [[./lapis/application.lua:589: what the heck
@@ -34,12 +16,13 @@ stack traceback:
 [[./lapis/nginx/postgres.lua:51: header part is incomplete: select 123 from hello_world where name = 'yeah']]
 }
 
+import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+
 describe "lapis.exceptions", ->
   use_test_env!
 
   describe "normalize label", ->
     it "should normalize label", ->
-      import ExceptionTypes from require "lapis.exceptions.models"
       assert.same {
         "./lapis/application.lua:589: what the heck"
         "./lapis/application.lua:589: ./app.lua:235: attempt to index global [STRING] (a nil value)"
@@ -47,21 +30,12 @@ describe "lapis.exceptions", ->
         "./lapis/nginx/postgres.lua:51: header part is incomplete: select [NUMBER] from hello_world where name = [STRING]"
       }, [ExceptionTypes\normalize_error err for err in *errors]
 
+  describe "feature", ->
+    it "installs app feature", ->
+
   describe "protect", ->
-    local queries, restore_query
-
     before_each ->
-      queries = {}
-      restore_query = with_query_fn (q) ->
-        table.insert queries, q
-
-        if q\lower!\match "^insert"
-          { {} }
-        else
-          {}
-
-    after_each ->
-      restore_query!
+      truncate_tables ExceptionRequests, ExceptionTypes
 
     it "should run a function with no errors", ->
       import protect from require "lapis.exceptions"
@@ -75,6 +49,9 @@ describe "lapis.exceptions", ->
       assert.same 6, b
       assert.same "no", c
 
+      assert.same 0, ExceptionRequests\count!
+      assert.same 0, ExceptionTypes\count!
+
     it "should do something with error function", ->
       import protect from require "lapis.exceptions"
 
@@ -85,6 +62,9 @@ describe "lapis.exceptions", ->
 
       res = wrapped!
       assert.falsy res
-      assert.same 4, #queries
 
+      assert.same 1, ExceptionRequests\count!
+      assert.same 1, ExceptionTypes\count!
 
+      req = unpack ExceptionRequests\select!
+      assert.truthy req.msg\find("i'm broken") > 0
