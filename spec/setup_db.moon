@@ -1,6 +1,8 @@
 config = require "lapis.config"
 
 config "test", ->
+  track_exceptions true
+
   postgres {
     database: "lapis_exceptions_test"
   }

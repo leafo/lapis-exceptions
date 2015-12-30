@@ -31,7 +31,29 @@ describe "lapis.exceptions", ->
       }, [ExceptionTypes\normalize_error err for err in *errors]
 
   describe "feature", ->
+    lapis = require "lapis"
+    import mock_request from require "lapis.spec.request"
+
+    before_each ->
+      truncate_tables ExceptionRequests, ExceptionTypes
+
     it "installs app feature", ->
+      class App extends lapis.Application
+        @enable "exception_tracking"
+
+        "/throw-error": =>
+          error "this is broken"
+
+      mock_request App, "/throw-error", {
+        allow_error: true
+      }
+
+      assert.same 1, ExceptionRequests\count!
+      assert.same 1, ExceptionTypes\count!
+
+      req = unpack ExceptionRequests\select!
+      assert.truthy req.msg\find("this is broken") > 0
+
 
   describe "protect", ->
     before_each ->

@@ -1,7 +1,7 @@
 local ExceptionRequests
 ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
-local config = require("lapis.config").get()
 return function(app_cls)
+  local config = require("lapis.config").get()
   if not (config.track_exceptions) then
     return 
   end
@@ -9,7 +9,11 @@ return function(app_cls)
   app_cls.__base.handle_error = function(self, err, trace, ...)
     old_error_handler(self, err, trace, ...)
     return pcall(function()
-      return ExceptionRequests:create(self, err, trace)
+      return ExceptionRequests:create({
+        req = self,
+        msg = err,
+        trace = trace
+      })
     end)
   end
 end
