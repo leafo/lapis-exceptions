@@ -55,7 +55,7 @@ class ExceptionFlow extends Flow
     }
 
     @page = tonumber(@params.page) or 1
-    @exceptions = @pager\get_page @page
+    @exceptions_requests = @pager\get_page @page
 
   update_exception: =>
     @find_exception_type!
@@ -67,6 +67,6 @@ class ExceptionFlow extends Flow
     switch @params.action
       when "update_status"
         @exception_type\update {
-          status: ExceptionTypes.statuses\for_db @opts.status
+          status: ExceptionTypes.statuses\for_db @params.status
         }
 

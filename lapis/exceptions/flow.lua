@@ -69,7 +69,7 @@ do
         end
       })
       self.page = tonumber(self.params.page) or 1
-      self.exceptions = self.pager:get_page(self.page)
+      self.exceptions_requests = self.pager:get_page(self.page)
     end,
     update_exception = function(self)
       self:find_exception_type()
@@ -90,7 +90,7 @@ do
       local _exp_0 = self.params.action
       if "update_status" == _exp_0 then
         return self.exception_type:update({
-          status = ExceptionTypes.statuses:for_db(self.opts.status)
+          status = ExceptionTypes.statuses:for_db(self.params.status)
         })
       end
     end
