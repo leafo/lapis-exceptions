@@ -1,4 +1,5 @@
 local schema = require("lapis.db.schema")
+local db = require("lapis.db")
 local create_table, create_index, add_column
 create_table, create_index, add_column = schema.create_table, schema.create_index, schema.add_column
 local serial, varchar, text, time, integer, foreign_key, enum
@@ -90,5 +91,18 @@ return {
   end,
   [1446941278] = function(self)
     return add_column("exception_types", "status", enum)
+  end,
+  [1451464107] = function(self)
+    local _list_0 = {
+      "path",
+      "method",
+      "ip",
+      "data",
+      "trace"
+    }
+    for _index_0 = 1, #_list_0 do
+      local col = _list_0[_index_0]
+      db.query("alter table exception_requests alter column " .. tostring(col) .. " drop not null")
+    end
   end
 }

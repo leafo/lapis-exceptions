@@ -1,4 +1,6 @@
 schema = require "lapis.db.schema"
+db = require "lapis.db"
+
 import create_table, create_index, add_column from schema
 
 import
@@ -53,6 +55,16 @@ import
 
   [1446941278]: =>
     add_column "exception_types", "status", enum
+
+  [1451464107]: =>
+    for col in *{
+      "path"
+      "method"
+      "ip"
+      "data"
+      "trace"
+    }
+      db.query "alter table exception_requests alter column #{col} drop not null"
 
 }
 

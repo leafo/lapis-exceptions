@@ -15,10 +15,7 @@ class ExceptionRequests extends Model
     session = require "lapis.session"
 
     data = {}
-    path = ""
-    method = ""
-    ip = ""
-    referer = ""
+    local path, method, ip, referer
 
     if req
       path = req.req.parsed_url.path

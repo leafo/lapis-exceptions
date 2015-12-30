@@ -51,10 +51,7 @@ do
     assert(msg, "missing exception message")
     local session = require("lapis.session")
     local data = { }
-    local path = ""
-    local method = ""
-    local ip = ""
-    local referer = ""
+    local path, method, ip, referer
     if req then
       path = req.req.parsed_url.path
       method = req.req.cmd_mth

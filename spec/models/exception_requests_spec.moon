@@ -19,9 +19,9 @@ describe "lapis.exceptions.flow", ->
     truncate_tables ExceptionRequests, ExceptionTypes
 
   it "creates exception type", ->
-    req = factory.ExceptionRequests!
-    assert.truthy req.msg
-    assert.truthy req.trace
+    ereq = factory.ExceptionRequests!
+    assert.truthy ereq.msg
+    assert.truthy ereq.trace
     etype = req\get_exception_type!
     assert.truthy etype
 
