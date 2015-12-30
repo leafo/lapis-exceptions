@@ -5,6 +5,8 @@ do
   local _obj_0 = require("lapis.exceptions.models")
   ExceptionRequests, ExceptionTypes = _obj_0.ExceptionRequests, _obj_0.ExceptionTypes
 end
+local assert_error
+assert_error = require("lapis.application").assert_error
 local assert_valid
 assert_valid = require("lapis.validate").assert_valid
 local db = require("lapis.db")
@@ -21,7 +23,7 @@ do
           is_integer = true
         }
       })
-      self.exception_type = assert_valid(ExceptionTypes:find(self.params.exception_type_id), "invalid exception")
+      self.exception_type = assert_error(ExceptionTypes:find(self.params.exception_type_id), "invalid exception")
     end,
     exception_types = function(self)
       assert_valid(self.params, {
@@ -58,7 +60,7 @@ do
       self.pager = ExceptionRequests:paginated([[      where exception_type_id = ? order by created_at desc
     ]], self.params.exception_type_id, {
         per_page = 30,
-        prepare_results = function(self, ereqs)
+        prepare_results = function(ereqs)
           for _index_0 = 1, #ereqs do
             local e = ereqs[_index_0]
             e.exception_type = self.exception_type

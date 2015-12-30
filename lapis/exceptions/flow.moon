@@ -2,6 +2,7 @@
 import Flow from require "lapis.flow"
 import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 
+import assert_error from require "lapis.application"
 import assert_valid from require "lapis.validate"
 
 db = require "lapis.db"
@@ -14,7 +15,7 @@ class ExceptionFlow extends Flow
       {"exception_type_id", is_integer: true}
     }
 
-    @exception_type = assert_valid ExceptionTypes\find(@params.exception_type_id), "invalid exception"
+    @exception_type = assert_error ExceptionTypes\find(@params.exception_type_id), "invalid exception"
 
   exception_types: =>
     assert_valid @params, {
@@ -46,7 +47,7 @@ class ExceptionFlow extends Flow
       where exception_type_id = ? order by created_at desc
     ]], @params.exception_type_id, {
       per_page: 30
-      prepare_results: (ereqs) =>
+      prepare_results: (ereqs) ->
         for e in *ereqs
           e.exception_type = @exception_type
 
