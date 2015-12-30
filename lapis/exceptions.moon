@@ -9,6 +9,7 @@ protect = (fn) ->
       xpcall (-> fn unpack args), (_err) ->
         err = _err
         trace = debug.traceback "", 2
+        trace = trace\match "^%s+(.*)"
     }
 
     unless result[1]

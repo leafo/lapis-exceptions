@@ -13,6 +13,7 @@ protect = function(fn)
       end), function(_err)
         err = _err
         trace = debug.traceback("", 2)
+        trace = trace:match("^%s+(.*)")
       end)
     }
     if not (result[1]) then
