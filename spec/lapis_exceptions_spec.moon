@@ -37,26 +37,6 @@ stack traceback:
 describe "lapis.exceptions", ->
   use_test_env!
 
-  describe "with database", ->
-    import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
-
-    setup require("spec.helpers").create_db
-
-    before_each ->
-      truncate_tables ExceptionRequests, ExceptionTypes
-
-    it "fetches empty exceptions", ->
-      assert.same {}, ExceptionRequests\select!
-
-    it "creates a new exception request", ->
-      ExceptionRequests\create nil, "There was a problem", "lua:123"
-      assert.same 1, ExceptionRequests\count!
-      assert.same 1, ExceptionTypes\count!
-
-    it "deletes exception type", ->
-      etype = ExceptionTypes\create label: "some error"
-      etype\delete!
-
   describe "normalize label", ->
     it "should normalize label", ->
       import ExceptionTypes from require "lapis.exceptions.models"

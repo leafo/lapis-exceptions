@@ -17,12 +17,28 @@ describe "lapis.models.exception_requests", ->
   use_test_env!
   setup require("spec.helpers").create_db
 
+  local ExceptionRequests, ExceptionTypes
+
   before_each ->
-    import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+    {:ExceptionRequests, :ExceptionTypes} = require "lapis.exceptions.models"
     truncate_tables ExceptionRequests, ExceptionTypes
+
+  it "fetches empty exceptions", ->
+    assert.same {}, ExceptionRequests\select!
+
+  it "deletes exception type and all requests", ->
+    ereq = factory.ExceptionRequests!
+    assert ereq\get_exception_type!\delete!
+
+    assert.same 0, ExceptionRequests\count!
+    assert.same 0, ExceptionTypes\count!
 
   it "creates exception type", ->
     ereq = factory.ExceptionRequests!
+
+    assert.same 1, ExceptionRequests\count!
+    assert.same 1, ExceptionTypes\count!
+
     assert.truthy ereq.msg
     assert.truthy ereq.trace
 
