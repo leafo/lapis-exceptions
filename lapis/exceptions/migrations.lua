@@ -90,7 +90,9 @@ return {
     return create_index("exception_requests", "exception_type_id")
   end,
   [1446941278] = function(self)
-    return add_column("exception_types", "status", enum)
+    return add_column("exception_types", "status", enum({
+      defaut = 1
+    }))
   end,
   [1451464107] = function(self)
     local _list_0 = {
