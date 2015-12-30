@@ -5,7 +5,13 @@ local ExceptionRequests
 do
   local _class_0
   local _parent_0 = Model
-  local _base_0 = { }
+  local _base_0 = {
+    get_data = function(self)
+      local from_json
+      from_json = require("lapis.util").from_json
+      return self.data and from_json(self.data)
+    end
+  }
   _base_0.__index = _base_0
   setmetatable(_base_0, _parent_0.__base)
   _class_0 = setmetatable({
@@ -61,7 +67,7 @@ do
         extra_data = extra_data,
         cmd_url = req.req.cmd_url,
         params = req.params,
-        session = session.get_session(r),
+        session = session.get_session(req),
         body = ngx and ngx.req.get_body_data(),
         headers = (function()
           local copy
@@ -83,9 +89,9 @@ do
     ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
     local etype, new_type = ExceptionTypes:find_or_create(msg)
     should_notify = etype:should_send_email()
-    if should_notify then
+    if should_notify and req then
       local ExceptionEmail = require("lapis.exceptions.email")
-      ExceptionEmail:send(r, {
+      ExceptionEmail:send(req, {
         msg = msg,
         trace = trace,
         ip = ip,

@@ -22,6 +22,26 @@ describe "lapis.exceptions.flow", ->
     ereq = factory.ExceptionRequests!
     assert.truthy ereq.msg
     assert.truthy ereq.trace
-    etype = req\get_exception_type!
+    etype = ereq\get_exception_type!
     assert.truthy etype
 
+  it "creates an exception requests from a mocked lapis requst", ->
+    lapis = require "lapis"
+    import mock_action from require "lapis.spec.request"
+
+    local ereq
+    mock_action lapis.Application, "/hello-world?cool=zone", =>
+      ereq = factory.ExceptionRequests req: @
+
+    data = ereq\get_data!
+    assert.same {
+      cmd_url: "/hello-world?cool=zone"
+      headers: {
+        host: "localhost"
+      }
+      params: {
+        cool: "zone"
+        splat: "hello-world"
+      }
+      session: { }
+    }, data

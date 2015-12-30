@@ -27,7 +27,7 @@ class ExceptionRequests extends Model
         :extra_data
         cmd_url: req.req.cmd_url
         params: req.params
-        session: session.get_session r
+        session: session.get_session req
         body: ngx and ngx.req.get_body_data!
         headers: do
           copy = { k,v for k,v in pairs(req.req.headers) }
@@ -43,9 +43,9 @@ class ExceptionRequests extends Model
 
     should_notify = etype\should_send_email!
 
-    if should_notify
+    if should_notify and req
       ExceptionEmail = require "lapis.exceptions.email"
-      ExceptionEmail\send r, {
+      ExceptionEmail\send req, {
         :msg, :trace, :ip, :method, :path, :data
         label: etype.label
       }
@@ -62,3 +62,8 @@ class ExceptionRequests extends Model
     }
 
     ereq, etype, new_type, should_notify
+
+  get_data: =>
+    import from_json from require "lapis.util"
+    @data and from_json @data
+
