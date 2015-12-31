@@ -56,9 +56,21 @@ class ExceptionTypes extends Model
       et.just_created = true
       et, true
 
+  ignored: =>
+    @status == @@statuses.ignored
+
+  resolved: =>
+    @status == @@statuses.resolved
+
   -- just created, or one that hasen't happened in 10 minutes
-  should_send_email: =>
+  should_notify: =>
     return true if @just_created
+    return false if @ignored!
+
+    if @resolved!
+      @update status: @@statuses.default
+      return true
+
     date = require "date"
     last_occurrence = date.diff(date(true), date(@updated_at))\spanseconds!
     last_occurrence > 60*10

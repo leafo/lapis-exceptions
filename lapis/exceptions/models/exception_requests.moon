@@ -53,7 +53,7 @@ class ExceptionRequests extends Model
     -- preload the relation
     ereq.exception_type = etype
 
-    should_notify = etype\should_send_email!
+    should_notify = etype\should_notify!
 
     if should_notify
       ereq\send_email @

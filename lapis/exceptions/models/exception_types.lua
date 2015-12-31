@@ -43,8 +43,23 @@ do
   local _class_0
   local _parent_0 = Model
   local _base_0 = {
-    should_send_email = function(self)
+    ignored = function(self)
+      return self.status == self.__class.statuses.ignored
+    end,
+    resolved = function(self)
+      return self.status == self.__class.statuses.resolved
+    end,
+    should_notify = function(self)
       if self.just_created then
+        return true
+      end
+      if self:ignored() then
+        return false
+      end
+      if self:resolved() then
+        self:update({
+          status = self.__class.statuses.default
+        })
         return true
       end
       local date = require("date")

@@ -109,7 +109,7 @@ do
       referer = referer ~= "" and referer or nil
     })
     ereq.exception_type = etype
-    local should_notify = etype:should_send_email()
+    local should_notify = etype:should_notify()
     if should_notify then
       ereq:send_email(self)
     end
