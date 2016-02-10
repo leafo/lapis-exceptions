@@ -7,13 +7,13 @@ return function(app_cls)
   end
   local old_error_handler = app_cls.__base.handle_error
   app_cls.__base.handle_error = function(self, err, trace, ...)
-    old_error_handler(self, err, trace, ...)
-    return pcall(function()
+    pcall(function()
       return ExceptionRequests:create({
         req = self,
         msg = err,
         trace = trace
       })
     end)
+    return old_error_handler(self, err, trace, ...)
   end
 end
