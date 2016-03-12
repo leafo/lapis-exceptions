@@ -69,11 +69,17 @@ do
       method = req.req.cmd_mth
       referer = req.req.referer
       ip = req.req.remote_addr
+      local s
+      if session.flatten_session then
+        s = session.flatten_session(req.session)
+      else
+        s = session.get_session(req)
+      end
       data = {
         extra_data = extra_data,
         cmd_url = req.req.cmd_url,
         params = req.params,
-        session = session.get_session(req),
+        session = s,
         body = ngx and ngx.req.get_body_data(),
         headers = (function()
           local copy

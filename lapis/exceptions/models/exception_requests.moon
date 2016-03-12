@@ -23,11 +23,16 @@ class ExceptionRequests extends Model
       referer = req.req.referer
       ip = req.req.remote_addr
 
+      s = if session.flatten_session
+        session.flatten_session req.session
+      else
+        session.get_session req
+
       data = {
         :extra_data
         cmd_url: req.req.cmd_url
         params: req.params
-        session: session.get_session req
+        session: s
         body: ngx and ngx.req.get_body_data!
         headers: do
           copy = { k,v for k,v in pairs(req.req.headers) }
