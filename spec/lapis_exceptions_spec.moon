@@ -90,3 +90,25 @@ describe "lapis.exceptions", ->
 
       req = unpack ExceptionRequests\select!
       assert.truthy req.msg\find("i'm broken") > 0
+
+
+    it "protects a function with a request", ->
+      lapis = require "lapis"
+      import mock_action from require "lapis.spec.request"
+      import protected_call from require "lapis.exceptions"
+
+      mock_action lapis.Application, =>
+        res = protected_call @, -> true
+        assert.same true, res
+
+        res = protected_call @, ->
+          error "oops had an error"
+
+        assert.same nil, res
+
+      assert.same 1, ExceptionRequests\count!
+      assert.same 1, ExceptionTypes\count!
+
+      err = unpack ExceptionRequests\select!
+      assert.same "127.0.0.1", err.ip
+

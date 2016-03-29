@@ -1,7 +1,14 @@
 
 import ExceptionRequests from require "lapis.exceptions.models"
 
-protect = (fn) ->
+protect = (fn_or_req, fn) ->
+  local req
+
+  if fn
+    req = fn_or_req
+  else
+    fn = fn_or_req
+
   (...) ->
     local err, trace
     args = {...}
@@ -14,6 +21,7 @@ protect = (fn) ->
 
     unless result[1]
       pcall -> ExceptionRequests\create {
+        :req
         msg: err
         :trace
       }
@@ -22,4 +30,8 @@ protect = (fn) ->
 
     unpack result, 2
 
-{ :protect }
+
+protected_call = (...) ->
+  protect(...)!
+
+{ :protect, :protected_call }

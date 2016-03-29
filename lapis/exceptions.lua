@@ -1,7 +1,13 @@
 local ExceptionRequests
 ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
 local protect
-protect = function(fn)
+protect = function(fn_or_req, fn)
+  local req
+  if fn then
+    req = fn_or_req
+  else
+    fn = fn_or_req
+  end
   return function(...)
     local err, trace
     local args = {
@@ -19,6 +25,7 @@ protect = function(fn)
     if not (result[1]) then
       pcall(function()
         return ExceptionRequests:create({
+          req = req,
           msg = err,
           trace = trace
         })
@@ -28,6 +35,11 @@ protect = function(fn)
     return unpack(result, 2)
   end
 end
+local protected_call
+protected_call = function(...)
+  return protect(...)()
+end
 return {
-  protect = protect
+  protect = protect,
+  protected_call = protected_call
 }
