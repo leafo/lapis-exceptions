@@ -88,6 +88,26 @@ success, ret = protected_call ->
 
 ```
 
+If you're running in a Lapis request context, you can pass a request object as
+the first argument to record any information about that request:
+
+
+```moonscript
+lapis = require "lapis"
+import protected_call from require "lapis.exceptions"
+
+class App extends lapis.Application
+
+success, ret = protected_call ->
+  "/": =>
+    protected_call ->
+      error "something failed"
+
+    "ok"
+```
+
+
+
 ## Getting the exceptions
 
 There's no admin panel for viewing exceptions inside the web app yet. You'll
