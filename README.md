@@ -73,6 +73,21 @@ An email will be sent to `config.admin_email` every time a new exception type
 is created, or every time an exception type is updated if it's been 10 minutes
 since the last update.
 
+## Protected calls
+
+Two functions are provided for running code with error capturing. Any errors
+that happen will be captured and written to the exception request table. The
+error will not propagate outside the call. It works similar to Lua's `pcall`.
+
+
+```moonscript
+import protected_call from require "lapis.exceptions"
+
+success, ret = protected_call ->
+  hello = 3 + "what"
+
+```
+
 ## Getting the exceptions
 
 There's no admin panel for viewing exceptions inside the web app yet. You'll
