@@ -72,6 +72,9 @@ class ExceptionRequests extends Model
     }
 
   get_data: =>
-    import from_json from require "lapis.util"
-    @data and from_json @data
+    if type(@data) == "string"
+      import from_json from require "lapis.util"
+      from_json @data
+    else
+      @data
 

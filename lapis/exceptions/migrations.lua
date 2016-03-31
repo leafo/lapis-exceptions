@@ -106,5 +106,8 @@ return {
       local col = _list_0[_index_0]
       db.query("alter table exception_requests alter column " .. tostring(col) .. " drop not null")
     end
+  end,
+  [1459407609] = function(self)
+    return db.query("alter table exception_requests alter column data type jsonb using data::jsonb")
   end
 }

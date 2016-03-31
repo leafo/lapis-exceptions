@@ -13,9 +13,13 @@ do
       })
     end,
     get_data = function(self)
-      local from_json
-      from_json = require("lapis.util").from_json
-      return self.data and from_json(self.data)
+      if type(self.data) == "string" then
+        local from_json
+        from_json = require("lapis.util").from_json
+        return from_json(self.data)
+      else
+        return self.data
+      end
     end
   }
   _base_0.__index = _base_0

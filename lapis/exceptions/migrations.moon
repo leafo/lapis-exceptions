@@ -66,5 +66,7 @@ import
     }
       db.query "alter table exception_requests alter column #{col} drop not null"
 
+  [1459407609]: =>
+    db.query "alter table exception_requests alter column data type jsonb using data::jsonb"
 }
 
