@@ -14,7 +14,7 @@ class ExceptionRequests extends Model
 
     session = require "lapis.session"
 
-    data = {}
+    data = opts.data or {}
     local path, method, ip, referer
 
     if req
@@ -40,6 +40,10 @@ class ExceptionRequests extends Model
           copy.referer = nil
           copy
       }
+
+      if opts.data
+        for k,v in pairs opts.data
+          data[k] = v
 
     import ExceptionTypes from require "lapis.exceptions.models"
 

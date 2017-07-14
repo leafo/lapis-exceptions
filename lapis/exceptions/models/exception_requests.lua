@@ -66,7 +66,7 @@ do
     req, msg, trace, extra_data = opts.req, opts.msg, opts.trace, opts.extra_data
     assert(msg, "missing exception message")
     local session = require("lapis.session")
-    local data = { }
+    local data = opts.data or { }
     local path, method, ip, referer
     if req then
       path = req.req.parsed_url.path
@@ -99,6 +99,11 @@ do
           return copy
         end)()
       }
+      if opts.data then
+        for k, v in pairs(opts.data) do
+          data[k] = v
+        end
+      end
     end
     local ExceptionTypes
     ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
