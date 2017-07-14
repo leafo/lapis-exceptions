@@ -13,7 +13,7 @@ description = {
 
 dependencies = {
   "lua == 5.1",
-  "lapis >= 1.5.0",
+  "lapis",
   "date",
 }
 
