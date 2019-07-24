@@ -1,6 +1,8 @@
 local db = require("lapis.db")
 local Model
 Model = require("lapis.exceptions.model").Model
+local sanitize_text
+sanitize_text = require("lapis.exceptions.helpers").sanitize_text
 local ExceptionRequests
 do
   local _class_0
@@ -114,14 +116,14 @@ do
     local to_json
     to_json = require("lapis.util").to_json
     local ereq = _class_0.__parent.create(self, {
-      path = path,
-      method = method,
-      ip = ip,
-      msg = msg,
-      trace = trace,
+      path = sanitize_text(path),
+      method = sanitize_text(method),
+      ip = sanitize_text(ip),
+      msg = sanitize_text(msg),
+      trace = sanitize_text(trace),
       exception_type_id = etype.id,
-      data = to_json(data),
-      referer = referer ~= "" and referer or nil
+      data = db.raw(db.escape_literal(sanitize_text(to_json(data)))),
+      referer = referer ~= "" and sanitize_text(referer) or nil
     })
     ereq.exception_type = etype
     local should_notify = etype:should_notify()

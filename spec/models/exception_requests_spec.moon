@@ -25,7 +25,7 @@ describe "lapis.models.exception_requests", ->
     assert.same 0, ExceptionRequests\count!
     assert.same 0, ExceptionTypes\count!
 
-  it "creates exception type", ->
+  it "creates exception request", ->
     ereq = factory.ExceptionRequests!
 
     assert.same 1, ExceptionRequests\count!
@@ -44,6 +44,41 @@ describe "lapis.models.exception_requests", ->
     reqs = etype\get_exception_requests!
     assert.same 1, #reqs
 
+  it "creates exception request with bad utf8", ->
+    bad_str = "#{string.char 0xf2}#{string.char 0xe0}#{string.char 0xea}#{string.char 0xe6}"
+
+    session = require "lapis.session"
+
+    ereq = factory.ExceptionRequests {
+      msg: "message:#{bad_str}"
+      trace: "trace:#{bad_str}"
+      req: {
+        session: setmetatable {}, { __index: {} }
+        req: {
+          method: "GET#{bad_str}"
+          remote_addr: "1.#{bad_str}.2"
+          referer: "http://ref#{bad_str}"
+          request_uri: "http://example#{bad_str}"
+          headers: {}
+          parsed_url: {
+            path: "/test/#{bad_str}"
+          }
+        }
+
+      }
+    }
+
+    etype = ereq\get_exception_type!
+    assert.same "message:<F2><E0><EA><E6>", etype.label
+
+    assert.same "message:<F2><E0><EA><E6>", ereq.msg
+    assert.same "GET<F2><E0><EA><E6>", ereq.method
+    assert.same "http://ref<F2><E0><EA><E6>", ereq.referer
+    assert.same "/test/<F2><E0><EA><E6>", ereq.path
+    assert.same "trace:<F2><E0><EA><E6>", ereq.trace
+    assert.same "http://example<F2><E0><EA><E6>", ereq.data.request_uri
+
+
   it "creates an exception requests from a mocked lapis requst", ->
     ereq = mock_action lapis.Application, "/hello-world?cool=zone", =>
       factory.ExceptionRequests req: @
@@ -54,7 +89,7 @@ describe "lapis.models.exception_requests", ->
 
     data = ereq\get_data!
     assert.same {
-      cmd_url: "/hello-world?cool=zone"
+      request_uri: "/hello-world?cool=zone"
       headers: {
         host: "localhost"
       }

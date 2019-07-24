@@ -16,6 +16,13 @@ describe "lapis.models.exception_requests", ->
     etype = factory.ExceptionTypes!
     assert.truthy etype
 
+  it "creates exception type with bad unicode", ->
+    etype = factory.ExceptionTypes {
+      label: "/hello/world#{string.char 0xf2}#{string.char 0xe0}#{string.char 0xea}#{string.char 0xe6}"
+    }
+    assert.truthy etype
+    assert.same "/hello/world<F2><E0><EA><E6>", etype.label
+
   describe "should_notify", ->
     it "should notify for a new exception", ->
       etype = ExceptionTypes\find_or_create "hello world"

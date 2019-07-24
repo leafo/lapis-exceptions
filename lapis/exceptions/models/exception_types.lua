@@ -3,6 +3,8 @@ local Model
 Model = require("lapis.exceptions.model").Model
 local enum
 enum = require("lapis.db.model").enum
+local sanitize_text
+sanitize_text = require("lapis.exceptions.helpers").sanitize_text
 local normalize_error
 do
   local grammar = nil
@@ -125,11 +127,13 @@ do
     if opts == nil then
       opts = { }
     end
+    opts.label = sanitize_text(opts.label)
     opts.status = opts.status or self.statuses:for_db(opts.status or "default")
     return _class_0.__parent.create(self, opts)
   end
   self.find_or_create = function(self, label)
     label = self:normalize_error(label)
+    label = sanitize_text(label)
     local et = self:find({
       label = label
     })

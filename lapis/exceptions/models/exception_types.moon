@@ -2,6 +2,8 @@ db = require "lapis.db"
 import Model from require "lapis.exceptions.model"
 import enum from require "lapis.db.model"
 
+import sanitize_text from require "lapis.exceptions.helpers"
+
 normalize_error = do
   grammar = nil
   make_grammar = ->
@@ -42,11 +44,13 @@ class ExceptionTypes extends Model
   }
 
   @create: (opts={}) =>
+    opts.label = sanitize_text opts.label
     opts.status or= @statuses\for_db opts.status or "default"
     super opts
 
   @find_or_create: (label) =>
     label = @normalize_error label
+    label = sanitize_text label
     et = @find(:label)
 
     if et

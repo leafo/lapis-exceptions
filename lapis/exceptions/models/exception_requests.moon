@@ -1,6 +1,8 @@
 db = require "lapis.db"
 import Model from require "lapis.exceptions.model"
 
+import sanitize_text from require "lapis.exceptions.helpers"
+
 class ExceptionRequests extends Model
   @timestamp: true
 
@@ -53,10 +55,15 @@ class ExceptionRequests extends Model
     import to_json from require "lapis.util"
 
     ereq = super {
-      :path, :method, :ip, :msg, :trace,
+      path: sanitize_text path
+      method: sanitize_text method
+      ip: sanitize_text ip
+      msg: sanitize_text msg
+      trace: sanitize_text trace
+
       exception_type_id: etype.id
-      data: to_json data
-      referer: referer != "" and referer or nil
+      data: db.raw db.escape_literal sanitize_text to_json data
+      referer: referer != "" and sanitize_text(referer) or nil
     }
 
     -- preload the relation
@@ -77,6 +84,7 @@ class ExceptionRequests extends Model
 
   get_data: =>
     if type(@data) == "string"
+      -- legacy path for old schema
       import from_json from require "lapis.util"
       from_json @data
     else
