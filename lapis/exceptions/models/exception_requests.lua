@@ -72,7 +72,7 @@ do
     local path, method, ip, referer
     if req then
       path = req.req.parsed_url.path
-      method = req.req.cmd_mth
+      method = req.req.method
       referer = req.req.referer
       ip = req.req.remote_addr
       local s
@@ -83,7 +83,7 @@ do
       end
       data = {
         extra_data = extra_data,
-        cmd_url = req.req.cmd_url,
+        request_uri = req.req.request_uri,
         params = req.params,
         session = s,
         body = ngx and ngx.req.get_body_data(),
