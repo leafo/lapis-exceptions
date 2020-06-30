@@ -11,19 +11,18 @@ class ExceptionRequests extends Model
   }
 
   @create: (opts={}) =>
-    {:req, :msg, :trace, :extra_data} = opts
+    {:req, :msg, :trace, :extra_data, :ip, :path, :method, :referer} = opts
     assert msg, "missing exception message"
 
     session = require "lapis.session"
 
     data = opts.data or {}
-    local path, method, ip, referer
 
     if req
-      path = req.req.parsed_url.path
-      method = req.req.method
-      referer = req.req.referer
-      ip = req.req.remote_addr
+      path or= req.req.parsed_url.path
+      method or= req.req.method
+      referer or= req.req.referer
+      ip or= req.req.remote_addr
 
       s = if session.flatten_session
         session.flatten_session req.session

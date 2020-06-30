@@ -64,17 +64,16 @@ do
     if opts == nil then
       opts = { }
     end
-    local req, msg, trace, extra_data
-    req, msg, trace, extra_data = opts.req, opts.msg, opts.trace, opts.extra_data
+    local req, msg, trace, extra_data, ip, path, method, referer
+    req, msg, trace, extra_data, ip, path, method, referer = opts.req, opts.msg, opts.trace, opts.extra_data, opts.ip, opts.path, opts.method, opts.referer
     assert(msg, "missing exception message")
     local session = require("lapis.session")
     local data = opts.data or { }
-    local path, method, ip, referer
     if req then
-      path = req.req.parsed_url.path
-      method = req.req.method
-      referer = req.req.referer
-      ip = req.req.remote_addr
+      path = path or req.req.parsed_url.path
+      method = method or req.req.method
+      referer = referer or req.req.referer
+      ip = ip or req.req.remote_addr
       local s
       if session.flatten_session then
         s = session.flatten_session(req.session)
