@@ -11,12 +11,6 @@ Optionally you can make it email you the exceptions.
 $ luarocks install lapis-exceptions
 ```
 
-Add a new migration to your app to create the required tables:
-
-```moonscript
-require("lapis.exceptions.models").make_schema!
-```
-
 Create a new migration that look like this:
 
 ```lua
