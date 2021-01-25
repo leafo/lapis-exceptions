@@ -5,6 +5,18 @@
 This module makes the error handler in Lapis save the errors to database.
 Optionally you can make it email you the exceptions.
 
+
+## Updated to 2.0 or beyond?
+
+You may need to run migrations. Add a new migration to your app and call
+`run_migrations`. It's safe to call it multiple times with no side effects so
+you're free to add that migration every time you update.
+
+
+```lua
+  [XXX]: require("lapis.exceptions.schema").run_migrations
+```
+
 ## Installing
 
 ```bash
@@ -137,6 +149,17 @@ Would be normalized to:
     ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = [STRING] and age > [NUMBER]
 
 Before being stored in the database.
+
+# Changelog
+
+### Jan 25 2021 `2.0`
+
+* Support for latest vesrions of Lapis
+* Data fields now stored as json
+* Add `protected_call` function
+* Fields `ip`, `path`, `method`, `referer` can be overriden when creating exception
+* Sanitize UTF8 input strings to ensure recording exceptions does not trigger an error
+* A bunch of minor updates, no interface changes
 
 # Contact
 
