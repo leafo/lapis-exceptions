@@ -103,10 +103,8 @@ lapis = require "lapis"
 import protected_call from require "lapis.exceptions"
 
 class App extends lapis.Application
-
-success, ret = protected_call ->
   "/": =>
-    protected_call ->
+    success, ret = protected_call @, ->
       error "something failed"
 
     "ok"
