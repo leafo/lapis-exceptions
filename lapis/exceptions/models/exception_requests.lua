@@ -73,7 +73,7 @@ do
       path = path or req.req.parsed_url.path
       method = method or req.req.method
       referer = referer or req.req.referer
-      ip = ip or req.req.remote_addr
+      ip = ip or require("lapis.exceptions.remote_addr")()
       local s
       if session.flatten_session then
         s = session.flatten_session(req.session)

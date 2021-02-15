@@ -28,6 +28,7 @@ build = {
     ["lapis.exceptions.models"] = "lapis/exceptions/models.lua",
     ["lapis.exceptions.models.exception_requests"] = "lapis/exceptions/models/exception_requests.lua",
     ["lapis.exceptions.models.exception_types"] = "lapis/exceptions/models/exception_types.lua",
+    ["lapis.exceptions.remote_addr"] = "lapis/exceptions/remote_addr.lua",
     ["lapis.exceptions.schema"] = "lapis/exceptions/schema.lua",
     ["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",
   }

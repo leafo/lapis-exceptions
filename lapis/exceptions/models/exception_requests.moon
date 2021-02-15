@@ -22,7 +22,7 @@ class ExceptionRequests extends Model
       path or= req.req.parsed_url.path
       method or= req.req.method
       referer or= req.req.referer
-      ip or= req.req.remote_addr
+      ip or= require("lapis.exceptions.remote_addr")!
 
       s = if session.flatten_session
         session.flatten_session req.session

@@ -23,7 +23,6 @@ class ExceptionFlow extends Flow
       {"status", one_of: {unpack ExceptionTypes.statuses}}
     }
 
-
     clause = {
       status: @params.status and ExceptionTypes.statuses\for_db @params.status
     }
