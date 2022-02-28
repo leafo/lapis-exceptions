@@ -5,6 +5,8 @@ local enum
 enum = require("lapis.db.model").enum
 local sanitize_text
 sanitize_text = require("lapis.exceptions.helpers").sanitize_text
+local escape_pattern
+escape_pattern = require("lapis.util").escape_pattern
 local normalize_error
 do
   local grammar = nil
@@ -28,10 +30,17 @@ do
     end
     local num = R("09") ^ 1 * (P(".") * R("09") ^ 1) ^ -1
     local str = make_str([[']]) + make_str([["]])
-    local line_no = P(":") * num * P(":")
+    local line_no = P(":") * num * P(": ")
+    local path_fragment = (P("/") + P("./")) * (1 - line_no) ^ 1 * (line_no / ": ")
+    path_fragment = Cs(path_fragment) / function(s)
+      if s:match(escape_pattern("lapis/application.lua")) then
+        return ""
+      end
+      return s
+    end
     local string = P("'") * (P(1) - P("'")) * P("'")
-    local literal_text = P([[attempt to index global ]]) * str + P([[attempt to call method ]]) * str + P([[attempt to index field ]]) * str
-    grammar = Cs((line_no + literal_text + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
+    local literal_text = P("attempt to index global ") * str + P("attempt to call method ") * str + P("attempt to index field ") * str + P("attempt to index local ") * str + P("attempt to perform arithmetic on local ") * str + P("bad argument #") * num * P(" to ") * str
+    grammar = Cs(path_fragment ^ 0 * (literal_text + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
   end
   normalize_error = function(str)
     if not (grammar) then

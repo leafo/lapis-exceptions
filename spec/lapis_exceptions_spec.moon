@@ -1,4 +1,3 @@
-import use_test_env from require "lapis.spec"
 import truncate_tables from require "lapis.spec.db"
 
 errors = {
@@ -20,22 +19,23 @@ stack traceback:
 [[/home/itch/.luarocks/share/lua/5.1/lapis/application.lua:440: ./flows/randomizer.lua:307: attempt to index field 'object' (a nil value)
 stack traceback:
 	./flows/randomizer.lua: in function <./flows/randomizer.lua:295>]]
+
+[[./widgets/buy_form.lua:791: bad argument #1 to 'tostring' (value expected)]]
 }
 
 import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 
 describe "lapis.exceptions", ->
-  use_test_env!
-
   describe "normalize label", ->
     it "should normalize label", ->
       assert.same {
-        "./lapis/application.lua:589: what the heck"
-        "./lapis/application.lua:589: ./app.lua:235: attempt to index global 'x' (a nil value)"
-        "./app.lua:246: attempt to index global 'a' (a nil value)"
-        "./lapis/nginx/postgres.lua:51: header part is incomplete: select [NUMBER] from hello_world where name = [STRING]"
-        "/home/itch/.luarocks/share/lua/[NUMBER]/lapis/application.lua:440: ./flows/game_view.lua:80: attempt to call method 'welcome_email_bounce' (a nil value)"
-        "/home/itch/.luarocks/share/lua/[NUMBER]/lapis/application.lua:440: ./flows/randomizer.lua:307: attempt to index field 'object' (a nil value)"
+        "what the heck"
+        "./app.lua: attempt to index global 'x' (a nil value)"
+        "./app.lua: attempt to index global 'a' (a nil value)"
+        "./lapis/nginx/postgres.lua: header part is incomplete: select [NUMBER] from hello_world where name = [STRING]"
+        "./flows/game_view.lua: attempt to call method 'welcome_email_bounce' (a nil value)"
+        "./flows/randomizer.lua: attempt to index field 'object' (a nil value)"
+        "./widgets/buy_form.lua: bad argument #1 to 'tostring' (value expected)"
       }, [ExceptionTypes\normalize_error err for err in *errors]
 
   describe "feature", ->

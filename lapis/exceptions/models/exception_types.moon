@@ -4,6 +4,8 @@ import enum from require "lapis.db.model"
 
 import sanitize_text from require "lapis.exceptions.helpers"
 
+import escape_pattern from require "lapis.util"
+
 -- this will turn any numbers or strings into NUMBER and STRING to allow error to be grouped together better
 normalize_error = do
   grammar = nil
@@ -18,17 +20,30 @@ normalize_error = do
     num = R("09")^1 * (P"." * R("09")^1)^-1
     str = make_str([[']]) + make_str([["]])
 
-    line_no = P":" * num * P":"
+    line_no = P":" * num * P": "
+
+    path_fragment = (P("/") + P("./")) * (1 - line_no)^1 * (line_no / ": ")
+
+    -- clean out paths we don't care about
+    path_fragment = Cs(path_fragment) / (s) ->
+      if s\match escape_pattern "lapis/application.lua"
+        return ""
+
+      s
+
 
     string = P"'" * (P(1) - P"'")* P"'"
 
     -- literal text will prevent the number/string normalization from happening
     -- when the actual value is imporant and should be preserved
-    literal_text = P([[attempt to index global ]]) * str +
-      P([[attempt to call method ]]) * str +
-      P([[attempt to index field ]]) * str
+    literal_text = P("attempt to index global ") * str +
+      P("attempt to call method ") * str +
+      P("attempt to index field ") * str +
+      P("attempt to index local ") * str +
+      P("attempt to perform arithmetic on local ") * str +
+      P("bad argument #") * num * P(" to ") * str
 
-    grammar = Cs (line_no + literal_text + (num / rep"NUMBER") + (str / rep"STRING") + P(1))^0
+    grammar = Cs path_fragment^0 * (literal_text + (num / rep"NUMBER") + (str / rep"STRING") + P(1))^0
 
   (str) ->
     make_grammar! unless grammar
