@@ -4,6 +4,7 @@ import enum from require "lapis.db.model"
 
 import sanitize_text from require "lapis.exceptions.helpers"
 
+-- this will turn any numbers or strings into NUMBER and STRING to allow error to be grouped together better
 normalize_error = do
   grammar = nil
   make_grammar = ->
@@ -21,7 +22,13 @@ normalize_error = do
 
     string = P"'" * (P(1) - P"'")* P"'"
 
-    grammar = Cs (line_no + (num / rep"NUMBER") + (str / rep"STRING") + P(1))^0
+    -- literal text will prevent the number/string normalization from happening
+    -- when the actual value is imporant and should be preserved
+    literal_text = P([[attempt to index global ]]) * str +
+      P([[attempt to call method ]]) * str +
+      P([[attempt to index field ]]) * str
+
+    grammar = Cs (line_no + literal_text + (num / rep"NUMBER") + (str / rep"STRING") + P(1))^0
 
   (str) ->
     make_grammar! unless grammar

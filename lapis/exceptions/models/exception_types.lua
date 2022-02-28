@@ -30,7 +30,8 @@ do
     local str = make_str([[']]) + make_str([["]])
     local line_no = P(":") * num * P(":")
     local string = P("'") * (P(1) - P("'")) * P("'")
-    grammar = Cs((line_no + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
+    local literal_text = P([[attempt to index global ]]) * str + P([[attempt to call method ]]) * str + P([[attempt to index field ]]) * str
+    grammar = Cs((line_no + literal_text + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
   end
   normalize_error = function(str)
     if not (grammar) then
