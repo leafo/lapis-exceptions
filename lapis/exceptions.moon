@@ -1,6 +1,8 @@
 
 import ExceptionRequests from require "lapis.exceptions.models"
 
+VERSION = "2.2.0"
+
 protect = (fn_or_req, fn) ->
   local req
 
@@ -34,4 +36,4 @@ protect = (fn_or_req, fn) ->
 protected_call = (...) ->
   protect(...)!
 
-{ :protect, :protected_call }
+{ :protect, :protected_call, :VERSION }
