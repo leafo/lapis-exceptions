@@ -150,14 +150,7 @@ Before being stored in the database.
 
 # Changelog
 
-### Jan 25 2021 `2.0`
-
-* Support for latest vesrions of Lapis
-* Data fields now stored as json
-* Add `protected_call` function
-* Fields `ip`, `path`, `method`, `referer` can be overriden when creating exception
-* Sanitize UTF8 input strings to ensure recording exceptions does not trigger an error
-* A bunch of minor updates, no interface changes
+<https://github.com/leafo/lapis-exceptions/releases>
 
 # Contact
 
