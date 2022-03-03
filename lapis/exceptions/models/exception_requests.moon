@@ -3,6 +3,25 @@ import Model from require "lapis.exceptions.model"
 
 import sanitize_text from require "lapis.exceptions.helpers"
 
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE exception_requests (
+--   id integer NOT NULL,
+--   exception_type_id integer NOT NULL,
+--   path text,
+--   method character varying(255),
+--   referer text,
+--   ip character varying(255),
+--   data jsonb,
+--   msg text NOT NULL,
+--   trace text,
+--   created_at timestamp without time zone NOT NULL,
+--   updated_at timestamp without time zone NOT NULL
+-- );
+-- ALTER TABLE ONLY exception_requests
+--   ADD CONSTRAINT exception_requests_pkey PRIMARY KEY (id);
+-- CREATE INDEX exception_requests_exception_type_id_idx ON exception_requests USING btree (exception_type_id);
+--
 class ExceptionRequests extends Model
   @timestamp: true
 

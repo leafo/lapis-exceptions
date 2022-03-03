@@ -1,6 +1,9 @@
 
-test:
+test::
 	busted --helper=spec/setup_db.moon -o utfTerminal
+
+annotate::
+	LAPIS_ENVIRONMENT=test lapis annotate --preload-module=spec.setup_db lapis/exceptions/models/*.moon
 
 lint: build
 	moonc -l lapis

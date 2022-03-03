@@ -50,6 +50,20 @@ normalize_error = do
     first = str\match "^[^\n]+"
     grammar\match(first) or first
 
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE exception_types (
+--   id integer NOT NULL,
+--   label text NOT NULL,
+--   created_at timestamp without time zone NOT NULL,
+--   updated_at timestamp without time zone NOT NULL,
+--   count integer DEFAULT 0 NOT NULL,
+--   status smallint DEFAULT 1 NOT NULL
+-- );
+-- ALTER TABLE ONLY exception_types
+--   ADD CONSTRAINT exception_types_pkey PRIMARY KEY (id);
+-- CREATE INDEX exception_types_label_idx ON exception_types USING btree (label);
+--
 class ExceptionTypes extends Model
   @timestamp: true
 

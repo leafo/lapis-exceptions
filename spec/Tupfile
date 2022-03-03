@@ -1,0 +1,2 @@
+.gitignore
+: foreach setup_db.moon helpers.moon  |> moonc %f |> %B.lua
