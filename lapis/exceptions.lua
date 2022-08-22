@@ -1,6 +1,6 @@
 local ExceptionRequests
 ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
-local VERSION = "2.2.0"
+local VERSION = "2.3.0"
 local protect
 protect = function(fn_or_req, fn)
   local req

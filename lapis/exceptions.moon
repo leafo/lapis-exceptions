@@ -1,7 +1,7 @@
 
 import ExceptionRequests from require "lapis.exceptions.models"
 
-VERSION = "2.2.0"
+VERSION = "2.3.0"
 
 protect = (fn_or_req, fn) ->
   local req
