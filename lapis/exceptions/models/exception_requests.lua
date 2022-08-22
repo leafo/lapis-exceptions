@@ -1,8 +1,11 @@
 local db = require("lapis.db")
 local Model
 Model = require("lapis.exceptions.model").Model
-local sanitize_text
-sanitize_text = require("lapis.exceptions.helpers").sanitize_text
+local sanitize_text, sanitize_table
+do
+  local _obj_0 = require("lapis.exceptions.helpers")
+  sanitize_text, sanitize_table = _obj_0.sanitize_text, _obj_0.sanitize_table
+end
 local ExceptionRequests
 do
   local _class_0
@@ -121,7 +124,7 @@ do
       msg = sanitize_text(msg),
       trace = sanitize_text(trace),
       exception_type_id = etype.id,
-      data = db.raw(db.escape_literal(sanitize_text(to_json(data)))),
+      data = db.raw(db.escape_literal(to_json(sanitize_table(data)))),
       referer = referer ~= "" and sanitize_text(referer) or nil
     })
     ereq.exception_type = etype

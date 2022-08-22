@@ -1,7 +1,7 @@
 db = require "lapis.db"
 import Model from require "lapis.exceptions.model"
 
-import sanitize_text from require "lapis.exceptions.helpers"
+import sanitize_text, sanitize_table from require "lapis.exceptions.helpers"
 
 -- Generated schema dump: (do not edit)
 --
@@ -80,7 +80,7 @@ class ExceptionRequests extends Model
       trace: sanitize_text trace
 
       exception_type_id: etype.id
-      data: db.raw db.escape_literal sanitize_text to_json data
+      data: db.raw db.escape_literal to_json sanitize_table data
       referer: referer != "" and sanitize_text(referer) or nil
     }
 

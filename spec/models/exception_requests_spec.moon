@@ -80,7 +80,8 @@ describe "lapis.models.exception_requests", ->
 
 
   it "creates an exception requests from a mocked lapis requst", ->
-    ereq = mock_action lapis.Application, "/hello-world?cool=zone", =>
+    ereq = mock_action lapis.Application, "/hello-world?cool=zone&bad_str=\0\1hf", =>
+      @params.bad_str2 = "#{string.char 0}#{string.char 0xe0}"
       factory.ExceptionRequests req: @
 
     assert.same "/hello-world", ereq.path
@@ -89,13 +90,15 @@ describe "lapis.models.exception_requests", ->
 
     data = ereq\get_data!
     assert.same {
-      request_uri: "/hello-world?cool=zone"
+      request_uri: "/hello-world?cool=zone&bad_str=%00%01hf"
       headers: {
         host: "localhost"
       }
       params: {
         cool: "zone"
         splat: "hello-world"
+        bad_str: "<0><1>hf"
+        bad_str2: "<0><E0>"
       }
       session: { }
     }, data

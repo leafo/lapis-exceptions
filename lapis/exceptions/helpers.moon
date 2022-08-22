@@ -15,4 +15,23 @@ sanitize_text = do
   p = Cs (acceptable_character + P(1) / escape_char)^0 * -1
   (text) -> text and p\match text
 
-{:sanitize_text}
+-- recursively sanitize all string values in a table with sanitize_text
+-- this is to prevent bad unicode values from being encoded into the serialized
+-- json objects placed in the database
+sanitize_table = (tbl) ->
+  out = {}
+  for k, v in pairs tbl
+    if type(k) == "string"
+      k = sanitize_text k
+
+    switch type(v)
+      when "string"
+        v = sanitize_text v
+      when "table"
+        v = sanitize_table v
+
+    out[k] = v
+
+  out
+
+{:sanitize_text, :sanitize_table}

@@ -17,6 +17,24 @@ do
     return text and p:match(text)
   end
 end
+local sanitize_table
+sanitize_table = function(tbl)
+  local out = { }
+  for k, v in pairs(tbl) do
+    if type(k) == "string" then
+      k = sanitize_text(k)
+    end
+    local _exp_0 = type(v)
+    if "string" == _exp_0 then
+      v = sanitize_text(v)
+    elseif "table" == _exp_0 then
+      v = sanitize_table(v)
+    end
+    out[k] = v
+  end
+  return out
+end
 return {
-  sanitize_text = sanitize_text
+  sanitize_text = sanitize_text,
+  sanitize_table = sanitize_table
 }
