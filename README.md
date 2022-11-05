@@ -27,7 +27,10 @@ you're free to add that migration every time you update.
 $ luarocks install lapis-exceptions
 ```
 
-Create a new migration that look like this:
+Create a new migration that look like this. This will create the necessary
+tables for storing errors, and make any updates to the scchema if necessary. If
+you are updating the library, you may need to run migrations again. See the
+upgrade details in the release notes.
 
 ```lua
 -- migrations.moon/lua
@@ -38,7 +41,9 @@ Create a new migration that look like this:
 }
 ```
 
-Enable it in your top level app by calling `@enable`:
+Enable it in your top level app by calling `@enable`. This will wrap your app's
+`handle_error` method with a new function that can record errors, and then call
+the previous function.
 
 ```moon
 class App extends lapis.Application
@@ -48,7 +53,9 @@ class App extends lapis.Application
 ```
 
 Lastly, add to `track_exceptions true` to each environment you want the
-exception tracking to happen, along with any other optional configuration:
+exception tracking to happen, along with any other optional configuration. This
+will cause the error handler to stard recording errors into the database.
+
 
 ```moon
 -- config.moon
