@@ -6,7 +6,8 @@ This module makes the error handler in Lapis save the errors to database.
 Optionally you can make it email you the exceptions.
 
 
-## Updated to 2.0 or beyond?
+<details>
+<summary><strong>Are you updating from before 2.0?</strong></summary>
 
 You may need to run migrations. Add a new migration to your app and call
 `run_migrations`. It's safe to call it multiple times with no side effects so
@@ -14,8 +15,11 @@ you're free to add that migration every time you update.
 
 
 ```lua
-  [XXX]: require("lapis.exceptions.schema").run_migrations
+  [XXX] = require("lapis.exceptions.schema").run_migrations
 ```
+
+</details>
+
 
 ## Installing
 
