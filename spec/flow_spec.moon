@@ -37,7 +37,16 @@ describe "lapis.exceptions.flow", ->
       assert.same 2, @page
       assert.same {}, @exception_types
 
-  it "exception_types", ->
+    mock_action Application, "/", {
+      get: {
+        search_label: "fart zone"
+      }
+    }, wrap =>
+      ExceptionFlow(@)\exception_types!
+      assert.same 1, @page
+      assert.same {}, @exception_types
+
+  it "exception_requests", ->
     et = factory.ExceptionTypes!
 
     mock_action Application, "/", {

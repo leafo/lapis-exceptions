@@ -25,9 +25,13 @@ class ExceptionFlow extends Flow
   exception_types: with_params {
     {"page", types.empty / 1 + page_number}
     {"status", types.empty + types.db_enum ExceptionTypes.statuses}
+    {"search_label", types.empty + types.trimmed_text}
   }, (params) =>
     clause = db.clause {
       status: params.status
+      if params.search_label
+        {"label @@ plainto_tsquery(?)", params.search_label}
+
     }, prefix: "where", allow_empty: true
 
     @pager = ExceptionTypes\paginated [[? ORDER BY updated_at DESC]], clause, {
