@@ -7,58 +7,63 @@ do
 end
 local assert_error
 assert_error = require("lapis.application").assert_error
-local assert_valid
-assert_valid = require("lapis.validate").assert_valid
+local assert_valid, with_params
+do
+  local _obj_0 = require("lapis.validate")
+  assert_valid, with_params = _obj_0.assert_valid, _obj_0.with_params
+end
+local types = require("lapis.validate.types")
 local db = require("lapis.db")
+local page_number = types.db_id:describe("integer") * types.custom(function(v)
+  return v >= 1, "invalid page number"
+end)
 local ExceptionFlow
 do
   local _class_0
   local _parent_0 = Flow
   local _base_0 = {
     expose_assigns = true,
-    find_exception_type = function(self)
-      assert_valid(self.params, {
-        {
-          "exception_type_id",
-          is_integer = true
-        }
-      })
-      self.exception_type = assert_error(ExceptionTypes:find(self.params.exception_type_id), "invalid exception")
-    end,
-    exception_types = function(self)
-      assert_valid(self.params, {
-        {
-          "page",
-          is_integer = true,
-          optional = true
-        },
-        {
-          "status",
-          one_of = {
-            unpack(ExceptionTypes.statuses)
-          }
-        }
-      })
+    find_exception_type = with_params({
+      {
+        "exception_type_id",
+        types.db_id
+      }
+    }, function(self, params)
+      self.exception_type = assert_error(ExceptionTypes:find(params.exception_type_id), "invalid exception")
+      return self.exception_type
+    end),
+    exception_types = with_params({
+      {
+        "page",
+        types.empty / 1 + page_number
+      },
+      {
+        "status",
+        types.db_enum(ExceptionTypes.statuses)
+      }
+    }, function(self, params)
       local clause = {
-        status = self.params.status and ExceptionTypes.statuses:for_db(self.params.status)
+        status = params.status
       }
       self.pager = ExceptionTypes:paginated("\n      " .. tostring(next(clause) and "where " .. db.encode_clause(clause) or "") .. "\n      order by updated_at desc\n    ", {
         per_page = 50
       })
-      self.page = tonumber(self.params.page) or 1
+      self.page = params.page
       self.exception_types = self.pager:get_page(self.page)
-    end,
-    exception_requests = function(self)
-      assert_valid(self.params, {
-        {
-          "page",
-          is_integer = true,
-          optional = true
-        }
-      })
+    end),
+    exception_requests = with_params({
+      {
+        "page",
+        types.empty / 1 + page_number
+      },
+      {
+        "exception_type_id",
+        types.db_id
+      }
+    }, function(self, params)
       self:find_exception_type()
       self.pager = ExceptionRequests:paginated([[      where exception_type_id = ? order by created_at desc
-    ]], self.params.exception_type_id, {
+    ]], params.exception_type_id, {
         per_page = 30,
         prepare_results = function(ereqs)
           for _index_0 = 1, #ereqs do
@@ -68,32 +73,36 @@ do
           return ereqs
         end
       })
-      self.page = tonumber(self.params.page) or 1
+      self.page = params.page
       self.exceptions_requests = self.pager:get_page(self.page)
-    end,
-    update_exception = function(self)
-      self:find_exception_type()
-      assert_valid(self.params, {
-        {
-          "action",
-          one_of = {
-            "update_status"
-          }
-        },
-        {
-          "status",
-          one_of = {
-            unpack(ExceptionTypes.statuses)
-          }
-        }
-      })
-      local _exp_0 = self.params.action
-      if "update_status" == _exp_0 then
-        return self.exception_type:update({
-          status = ExceptionTypes.statuses:for_db(self.params.status)
+    end),
+    update_exception = with_params({
+      {
+        "action",
+        types.one_of({
+          "update_status",
+          "delete"
         })
+      }
+    }, function(self, params)
+      local _exp_0 = params.action
+      if "update_status" == _exp_0 then
+        self:find_exception_type()
+        local status
+        status = assert_valid(types.params_shape({
+          {
+            "status",
+            types.db_enum(ExceptionTypes.statuses)
+          }
+        })).status
+        return self.exception_type:update({
+          status = status
+        })
+      elseif "delete" == _exp_0 then
+        self:find_exception_type()
+        return self.exception_type:delete()
       end
-    end
+    end)
   }
   _base_0.__index = _base_0
   setmetatable(_base_0, _parent_0.__base)

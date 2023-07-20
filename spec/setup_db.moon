@@ -14,5 +14,8 @@ config "test", ->
 
 env = require "lapis.environment"
 env.push "test"
-require("spec.helpers").create_db!
+import exec from require "lapis.cmd.path"
+exec "dropdb -U postgres lapis_exceptions_test &> /dev/null"
+exec "createdb -U postgres lapis_exceptions_test"
+require("lapis.exceptions.schema").run_migrations!
 env.pop!

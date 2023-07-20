@@ -1,5 +1,4 @@
 lapis = require "lapis"
-import use_test_env from require "lapis.spec"
 import truncate_tables from require "lapis.spec.db"
 
 factory = require "spec.factory"
@@ -7,8 +6,6 @@ factory = require "spec.factory"
 import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 
 describe "lapis.models.exception_requests", ->
-  use_test_env!
-
   before_each ->
     truncate_tables ExceptionRequests, ExceptionTypes
 

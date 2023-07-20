@@ -81,7 +81,7 @@ class ExceptionTypes extends Model
 
   @create: (opts={}) =>
     opts.label = sanitize_text opts.label
-    opts.status or= @statuses\for_db opts.status or "default"
+    opts.status = @statuses\for_db opts.status or "default"
     super opts
 
   @find_or_create: (label) =>
