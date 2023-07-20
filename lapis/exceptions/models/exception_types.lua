@@ -138,7 +138,7 @@ do
       opts = { }
     end
     opts.label = sanitize_text(opts.label)
-    opts.status = opts.status or self.statuses:for_db(opts.status or "default")
+    opts.status = self.statuses:for_db(opts.status or "default")
     return _class_0.__parent.create(self, opts)
   end
   self.find_or_create = function(self, label)

@@ -5,6 +5,8 @@ import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
 import assert_error from require "lapis.application"
 import assert_valid, with_params from require "lapis.validate"
 
+import preload from require "lapis.db.model"
+
 types = require "lapis.validate.types"
 
 db = require "lapis.db"
@@ -24,14 +26,13 @@ class ExceptionFlow extends Flow
     {"page", types.empty / 1 + page_number}
     {"status", types.empty + types.db_enum ExceptionTypes.statuses}
   }, (params) =>
-    clause = {
+    clause = db.clause {
       status: params.status
-    }
+    }, prefix: "where", allow_empty: true
 
-    @pager = ExceptionTypes\paginated "
-      #{next(clause) and "where " .. db.encode_clause(clause) or ""}
-      order by updated_at desc
-    ", per_page: 50
+    @pager = ExceptionTypes\paginated [[? ORDER BY updated_at DESC]], clause, {
+      per_page: 50
+    }
 
     @page = params.page
     @exception_types = @pager\get_page @page
@@ -40,16 +41,14 @@ class ExceptionFlow extends Flow
     {"page", types.empty / 1 + page_number}
     {"exception_type_id", types.db_id}
   }, (params) =>
-    @find_exception_type!
+    et = @find_exception_type!
 
     @pager = ExceptionRequests\paginated [[
       where exception_type_id = ? order by created_at desc
     ]], params.exception_type_id, {
       per_page: 30
       prepare_results: (ereqs) ->
-        for e in *ereqs
-          e.exception_type = @exception_type
-
+        preload ereqs, "exception_type"
         ereqs
     }
 
@@ -61,14 +60,14 @@ class ExceptionFlow extends Flow
   }, (params) =>
     switch params.action
       when "update_status"
-        @find_exception_type!
+        et = @find_exception_type!
 
         {:status} = assert_valid @params, types.params_shape {
           {"status", types.db_enum ExceptionTypes.statuses}
         }
 
-        @exception_type\update { :status }
+        et\update { :status }
       when "delete"
-        @find_exception_type!
-        @exception_type\delete!
+        et = @find_exception_type!
+        et\delete!
 

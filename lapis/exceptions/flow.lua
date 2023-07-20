@@ -39,7 +39,7 @@ do
       },
       {
         "status",
-        types.db_enum(ExceptionTypes.statuses)
+        types.empty + types.db_enum(ExceptionTypes.statuses)
       }
     }, function(self, params)
       local clause = {
@@ -74,7 +74,7 @@ do
         end
       })
       self.page = params.page
-      self.exceptions_requests = self.pager:get_page(self.page)
+      self.exception_requests = self.pager:get_page(self.page)
     end),
     update_exception = with_params({
       {
@@ -89,7 +89,7 @@ do
       if "update_status" == _exp_0 then
         self:find_exception_type()
         local status
-        status = assert_valid(types.params_shape({
+        status = assert_valid(self.params, types.params_shape({
           {
             "status",
             types.db_enum(ExceptionTypes.statuses)
