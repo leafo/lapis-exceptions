@@ -2,6 +2,9 @@
 test::
 	busted --helper=spec/setup_db.moon -o utfTerminal
 
+tags::
+	moon-tags --lapis $$(git ls-files lapis/) > $@
+
 annotate::
 	LAPIS_ENVIRONMENT=test lapis annotate --preload-module=spec.setup_db lapis/exceptions/models/*.moon
 
