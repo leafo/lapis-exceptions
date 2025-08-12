@@ -64,9 +64,13 @@ import
       "data"
       "trace"
     }
-      db.query "alter table exception_requests alter column #{col} drop not null"
+      db.query "ALTER TABLE exception_requests ALTER COLUMN #{col} DROP NOT NULL"
 
   [1459407609]: =>
-    db.query "alter table exception_requests alter column data type jsonb using data::jsonb"
+    db.query "ALTER TABLE exception_requests ALTER COLUMN data TYPE jsonb USING data::jsonb"
+
+  [1755025174]: =>
+    db.query "ALTER TABLE exception_requests ADD CONSTRAINT exception_requests_exception_type_id_fkey FOREIGN KEY (exception_type_id) REFERENCES exception_types(id) ON DELETE CASCADE"
+
 }
 

@@ -21,6 +21,8 @@ import sanitize_text, sanitize_table from require "lapis.exceptions.helpers"
 -- ALTER TABLE ONLY exception_requests
 --   ADD CONSTRAINT exception_requests_pkey PRIMARY KEY (id);
 -- CREATE INDEX exception_requests_exception_type_id_idx ON exception_requests USING btree (exception_type_id);
+-- ALTER TABLE ONLY exception_requests
+--   ADD CONSTRAINT exception_requests_exception_type_id_fkey FOREIGN KEY (exception_type_id) REFERENCES public.exception_types(id) ON DELETE CASCADE;
 --
 class ExceptionRequests extends Model
   @timestamp: true

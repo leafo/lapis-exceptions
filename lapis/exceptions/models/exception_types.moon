@@ -114,11 +114,3 @@ class ExceptionTypes extends Model
     date = require "date"
     last_occurrence = date.diff(date(true), date(@updated_at))\spanseconds!
     last_occurrence > 60*10
-
-  delete: =>
-    import ExceptionRequests from require "lapis.exceptions.models"
-    if super!
-      db.delete ExceptionRequests\table_name!, {
-        exception_type_id: @id
-      }
-      true

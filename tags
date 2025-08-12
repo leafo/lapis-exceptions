@@ -12,7 +12,6 @@ ExceptionTypes	lapis/exceptions/models/exception_types.moon	/^class ExceptionTyp
 content	lapis/exceptions/email.moon	/^  content: =>/;"	f	language:moon class:ExceptionEmail
 create	lapis/exceptions/models/exception_requests.moon	/^  @create: (opts={}) =>/;"	f	language:moon class:ExceptionRequests
 create	lapis/exceptions/models/exception_types.moon	/^  @create: (opts={}) =>/;"	f	language:moon class:ExceptionTypes
-delete	lapis/exceptions/models/exception_types.moon	/^  delete: =>/;"	f	language:moon class:ExceptionTypes
 find_or_create	lapis/exceptions/models/exception_types.moon	/^  @find_or_create: (label) =>/;"	f	language:moon class:ExceptionTypes
 get_data	lapis/exceptions/models/exception_requests.moon	/^  get_data: =>/;"	f	language:moon class:ExceptionRequests
 ignored	lapis/exceptions/models/exception_types.moon	/^  ignored: =>/;"	f	language:moon class:ExceptionTypes
