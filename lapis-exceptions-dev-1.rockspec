@@ -15,6 +15,7 @@ dependencies = {
   "lua == 5.1",
   "lapis",
   "tableshape",
+  "argparse",
 }
 
 build = {
@@ -32,6 +33,7 @@ build = {
     ["lapis.exceptions.remote_addr"] = "lapis/exceptions/remote_addr.lua",
     ["lapis.exceptions.schema"] = "lapis/exceptions/schema.lua",
     ["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",
+    ["lapis.cmd.actions.exceptions"] = "lapis/cmd/actions/exceptions.lua",
   }
 }
 
