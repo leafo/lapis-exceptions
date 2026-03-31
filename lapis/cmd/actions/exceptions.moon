@@ -236,42 +236,35 @@ handle_create = (args) ->
   print "  Label: #{truncate etype.label, 80}"
 
 handle_update = (args) ->
-  et = ExceptionTypes\find args.exception_type_id
-  unless et
-    io.stderr\write "Exception type not found: #{args.exception_type_id}\n"
-    return
-
   unless args.status
     io.stderr\write "Nothing to update. Use --status to set a new status.\n"
     return
 
-  et\update status: ExceptionTypes.statuses\for_db args.status
+  for id in *args.exception_type_ids
+    et = ExceptionTypes\find id
+    unless et
+      io.stderr\write "Exception type not found: #{id}\n"
+      continue
 
-  if args.json
-    print to_json et
-    return
-
-  print "Updated exception type ##{et.id} status to #{format_status et.status}"
+    et\update status: ExceptionTypes.statuses\for_db args.status
+    print "Updated exception type ##{et.id} status to #{format_status et.status}"
 
 handle_delete = (args) ->
-  et = ExceptionTypes\find args.exception_type_id
-  unless et
-    io.stderr\write "Exception type not found: #{args.exception_type_id}\n"
-    return
+  for id in *args.exception_type_ids
+    et = ExceptionTypes\find id
+    unless et
+      io.stderr\write "Exception type not found: #{id}\n"
+      continue
 
-  unless args.confirm
-    io.write "Delete exception type ##{et.id} (#{truncate et.label, 60}) and all its requests? [y/N] "
-    io.flush!
-    response = io.read "*l"
-    return unless response and response\lower! == "y"
+    unless args.confirm
+      io.write "Delete exception type ##{et.id} (#{truncate et.label, 60}) and all its requests? [y/N] "
+      io.flush!
+      response = io.read "*l"
+      unless response and response\lower! == "y"
+        continue
 
-  et\delete!
-
-  if args.json
-    print to_json {deleted: true, id: et.id}
-    return
-
-  print "Deleted exception type ##{et.id} and all associated requests."
+    et\delete!
+    print "Deleted exception type ##{et.id} and all associated requests."
 
 {
   argparser: ->
@@ -313,14 +306,12 @@ handle_delete = (args) ->
         \flag("--json", "Output as JSON")
 
       with \command "update", "Update an exception type"
-        \argument("exception_type_id", "Exception type ID")\convert(tonumber)
+        \argument("exception_type_ids", "Exception type IDs")\args("+")\convert(tonumber)
         \option("--status -s", "Set status")\choices({"default", "resolved", "ignored"})
-        \flag("--json", "Output as JSON")
 
       with \command "delete", "Delete an exception type and all its requests"
-        \argument("exception_type_id", "Exception type ID")\convert(tonumber)
+        \argument("exception_type_ids", "Exception type IDs")\args("+")\convert(tonumber)
         \flag("--confirm", "Skip confirmation prompt")
-        \flag("--json", "Output as JSON")
 
   (args, lapis_args) =>
     switch args.command

@@ -323,48 +323,62 @@ handle_create = function(args)
 end
 local handle_update
 handle_update = function(args)
-  local et = ExceptionTypes:find(args.exception_type_id)
-  if not (et) then
-    io.stderr:write("Exception type not found: " .. tostring(args.exception_type_id) .. "\n")
-    return 
-  end
   if not (args.status) then
     io.stderr:write("Nothing to update. Use --status to set a new status.\n")
     return 
   end
-  et:update({
-    status = ExceptionTypes.statuses:for_db(args.status)
-  })
-  if args.json then
-    print(to_json(et))
-    return 
+  local _list_0 = args.exception_type_ids
+  for _index_0 = 1, #_list_0 do
+    local _continue_0 = false
+    repeat
+      local id = _list_0[_index_0]
+      local et = ExceptionTypes:find(id)
+      if not (et) then
+        io.stderr:write("Exception type not found: " .. tostring(id) .. "\n")
+        _continue_0 = true
+        break
+      end
+      et:update({
+        status = ExceptionTypes.statuses:for_db(args.status)
+      })
+      print("Updated exception type #" .. tostring(et.id) .. " status to " .. tostring(format_status(et.status)))
+      _continue_0 = true
+    until true
+    if not _continue_0 then
+      break
+    end
   end
-  return print("Updated exception type #" .. tostring(et.id) .. " status to " .. tostring(format_status(et.status)))
 end
 local handle_delete
 handle_delete = function(args)
-  local et = ExceptionTypes:find(args.exception_type_id)
-  if not (et) then
-    io.stderr:write("Exception type not found: " .. tostring(args.exception_type_id) .. "\n")
-    return 
-  end
-  if not (args.confirm) then
-    io.write("Delete exception type #" .. tostring(et.id) .. " (" .. tostring(truncate(et.label, 60)) .. ") and all its requests? [y/N] ")
-    io.flush()
-    local response = io.read("*l")
-    if not (response and response:lower() == "y") then
-      return 
+  local _list_0 = args.exception_type_ids
+  for _index_0 = 1, #_list_0 do
+    local _continue_0 = false
+    repeat
+      local id = _list_0[_index_0]
+      local et = ExceptionTypes:find(id)
+      if not (et) then
+        io.stderr:write("Exception type not found: " .. tostring(id) .. "\n")
+        _continue_0 = true
+        break
+      end
+      if not (args.confirm) then
+        io.write("Delete exception type #" .. tostring(et.id) .. " (" .. tostring(truncate(et.label, 60)) .. ") and all its requests? [y/N] ")
+        io.flush()
+        local response = io.read("*l")
+        if not (response and response:lower() == "y") then
+          _continue_0 = true
+          break
+        end
+      end
+      et:delete()
+      print("Deleted exception type #" .. tostring(et.id) .. " and all associated requests.")
+      _continue_0 = true
+    until true
+    if not _continue_0 then
+      break
     end
   end
-  et:delete()
-  if args.json then
-    print(to_json({
-      deleted = true,
-      id = et.id
-    }))
-    return 
-  end
-  return print("Deleted exception type #" .. tostring(et.id) .. " and all associated requests.")
 end
 return {
   argparser = function()
@@ -420,19 +434,17 @@ return {
       end
       do
         local _with_1 = _with_0:command("update", "Update an exception type")
-        _with_1:argument("exception_type_id", "Exception type ID"):convert(tonumber)
+        _with_1:argument("exception_type_ids", "Exception type IDs"):args("+"):convert(tonumber)
         _with_1:option("--status -s", "Set status"):choices({
           "default",
           "resolved",
           "ignored"
         })
-        _with_1:flag("--json", "Output as JSON")
       end
       do
         local _with_1 = _with_0:command("delete", "Delete an exception type and all its requests")
-        _with_1:argument("exception_type_id", "Exception type ID"):convert(tonumber)
+        _with_1:argument("exception_type_ids", "Exception type IDs"):args("+"):convert(tonumber)
         _with_1:flag("--confirm", "Skip confirmation prompt")
-        _with_1:flag("--json", "Output as JSON")
       end
       return _with_0
     end
