@@ -80,6 +80,9 @@ handle_list = (args) ->
       "%" .. args.search_path .. "%"
     }
 
+  if args.since
+    table.insert clauses, {"updated_at >= now() - ?::interval", args.since}
+
   clause = db.clause clauses, prefix: "where", allow_empty: true
 
   order = switch args.sort
@@ -274,6 +277,7 @@ handle_delete = (args) ->
         \option("--status -s", "Filter by status")\choices({"default", "resolved", "ignored"})
         \option("--search", "Filter labels by search text")
         \option("--search-path", "Filter to exceptions with requests matching path")
+        \option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
         \option("--page -p", "Page number")\default("1")\convert(tonumber)
         \option("--limit", "Results per page")\default("50")\convert(tonumber)
         \flag("--json", "Output as JSON")

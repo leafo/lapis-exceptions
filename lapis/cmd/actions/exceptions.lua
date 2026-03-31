@@ -125,6 +125,12 @@ handle_list = function(args)
       "%" .. args.search_path .. "%"
     })
   end
+  if args.since then
+    table.insert(clauses, {
+      "updated_at >= now() - ?::interval",
+      args.since
+    })
+  end
   local clause = db.clause(clauses, {
     prefix = "where",
     allow_empty = true
@@ -371,6 +377,7 @@ return {
         })
         _with_1:option("--search", "Filter labels by search text")
         _with_1:option("--search-path", "Filter to exceptions with requests matching path")
+        _with_1:option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
         _with_1:option("--page -p", "Page number"):default("1"):convert(tonumber)
         _with_1:option("--limit", "Results per page"):default("50"):convert(tonumber)
         _with_1:flag("--json", "Output as JSON")
