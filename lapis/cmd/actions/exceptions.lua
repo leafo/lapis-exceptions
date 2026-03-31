@@ -362,17 +362,36 @@ handle_delete = function(args)
         _continue_0 = true
         break
       end
-      if not (args.confirm) then
-        io.write("Delete exception type #" .. tostring(et.id) .. " (" .. tostring(truncate(et.label, 60)) .. ") and all its requests? [y/N] ")
-        io.flush()
-        local response = io.read("*l")
-        if not (response and response:lower() == "y") then
-          _continue_0 = true
-          break
+      if args.requests_only then
+        if not (args.confirm) then
+          io.write("Delete all requests for exception type #" .. tostring(et.id) .. " (" .. tostring(truncate(et.label, 60)) .. ")? [y/N] ")
+          io.flush()
+          local response = io.read("*l")
+          if not (response and response:lower() == "y") then
+            _continue_0 = true
+            break
+          end
         end
+        db.delete("exception_requests", {
+          exception_type_id = et.id
+        })
+        et:update({
+          count = 0
+        })
+        print("Deleted all requests for exception type #" .. tostring(et.id) .. ", count reset to 0.")
+      else
+        if not (args.confirm) then
+          io.write("Delete exception type #" .. tostring(et.id) .. " (" .. tostring(truncate(et.label, 60)) .. ") and all its requests? [y/N] ")
+          io.flush()
+          local response = io.read("*l")
+          if not (response and response:lower() == "y") then
+            _continue_0 = true
+            break
+          end
+        end
+        et:delete()
+        print("Deleted exception type #" .. tostring(et.id) .. " and all associated requests.")
       end
-      et:delete()
-      print("Deleted exception type #" .. tostring(et.id) .. " and all associated requests.")
       _continue_0 = true
     until true
     if not _continue_0 then
@@ -444,6 +463,7 @@ return {
       do
         local _with_1 = _with_0:command("delete", "Delete an exception type and all its requests")
         _with_1:argument("exception_type_ids", "Exception type IDs"):args("+"):convert(tonumber)
+        _with_1:flag("--requests-only", "Only delete the requests, keep the exception type")
         _with_1:flag("--confirm", "Skip confirmation prompt")
       end
       return _with_0

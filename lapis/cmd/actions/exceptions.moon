@@ -256,15 +256,27 @@ handle_delete = (args) ->
       io.stderr\write "Exception type not found: #{id}\n"
       continue
 
-    unless args.confirm
-      io.write "Delete exception type ##{et.id} (#{truncate et.label, 60}) and all its requests? [y/N] "
-      io.flush!
-      response = io.read "*l"
-      unless response and response\lower! == "y"
-        continue
+    if args.requests_only
+      unless args.confirm
+        io.write "Delete all requests for exception type ##{et.id} (#{truncate et.label, 60})? [y/N] "
+        io.flush!
+        response = io.read "*l"
+        unless response and response\lower! == "y"
+          continue
 
-    et\delete!
-    print "Deleted exception type ##{et.id} and all associated requests."
+      db.delete "exception_requests", exception_type_id: et.id
+      et\update count: 0
+      print "Deleted all requests for exception type ##{et.id}, count reset to 0."
+    else
+      unless args.confirm
+        io.write "Delete exception type ##{et.id} (#{truncate et.label, 60}) and all its requests? [y/N] "
+        io.flush!
+        response = io.read "*l"
+        unless response and response\lower! == "y"
+          continue
+
+      et\delete!
+      print "Deleted exception type ##{et.id} and all associated requests."
 
 {
   argparser: ->
@@ -311,6 +323,7 @@ handle_delete = (args) ->
 
       with \command "delete", "Delete an exception type and all its requests"
         \argument("exception_type_ids", "Exception type IDs")\args("+")\convert(tonumber)
+        \flag("--requests-only", "Only delete the requests, keep the exception type")
         \flag("--confirm", "Skip confirmation prompt")
 
   (args, lapis_args) =>
