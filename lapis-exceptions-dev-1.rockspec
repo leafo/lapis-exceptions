@@ -34,6 +34,7 @@ build = {
     ["lapis.exceptions.schema"] = "lapis/exceptions/schema.lua",
     ["lapis.features.exception_tracking"] = "lapis/features/exception_tracking.lua",
     ["lapis.cmd.actions.exceptions"] = "lapis/cmd/actions/exceptions.lua",
+    ["lapis.exceptions.mcp_server"] = "lapis/exceptions/mcp_server.lua",
   }
 }
 

@@ -63,27 +63,24 @@ print_page_info = (page, count) ->
       print "Use --page #{page + 1} for more"
 
 handle_list = (args) ->
-  clauses = {}
+  clause = db.clause {
+    id: if args.ids and #args.ids > 0
+      db.list args.ids
 
-  if args.ids and #args.ids > 0
-    table.insert clauses, {"id in ?", db.list args.ids}
+    status: args.status and ExceptionTypes.statuses\for_db args.status
 
-  if args.status
-    table.insert clauses, status: ExceptionTypes.statuses\for_db args.status
+    if args.search
+      {"label @@ plainto_tsquery(?)", args.search}
 
-  if args.search
-    table.insert clauses, {"label @@ plainto_tsquery(?)", args.search}
+    if args.search_path
+      {
+        "exists (select 1 from exception_requests where exception_requests.exception_type_id = exception_types.id and path like ?)"
+        "%" .. args.search_path .. "%"
+      }
 
-  if args.search_path
-    table.insert clauses, {
-      "exists (select 1 from exception_requests where exception_requests.exception_type_id = exception_types.id and path like ?)"
-      "%" .. args.search_path .. "%"
-    }
-
-  if args.since
-    table.insert clauses, {"updated_at >= now() - ?::interval", args.since}
-
-  clause = db.clause clauses, prefix: "where", allow_empty: true
+    if args.since
+      {"updated_at >= now() - ?::interval", args.since}
+  }, prefix: "WHERE", allow_empty: true
 
   order = switch args.sort
     when "oldest"

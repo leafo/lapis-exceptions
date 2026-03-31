@@ -101,38 +101,39 @@ print_page_info = function(page, count)
 end
 local handle_list
 handle_list = function(args)
-  local clauses = { }
-  if args.ids and #args.ids > 0 then
-    table.insert(clauses, {
-      "id in ?",
-      db.list(args.ids)
-    })
-  end
-  if args.status then
-    table.insert(clauses, {
-      status = ExceptionTypes.statuses:for_db(args.status)
-    })
-  end
-  if args.search then
-    table.insert(clauses, {
-      "label @@ plainto_tsquery(?)",
-      args.search
-    })
-  end
-  if args.search_path then
-    table.insert(clauses, {
-      "exists (select 1 from exception_requests where exception_requests.exception_type_id = exception_types.id and path like ?)",
-      "%" .. args.search_path .. "%"
-    })
-  end
-  if args.since then
-    table.insert(clauses, {
-      "updated_at >= now() - ?::interval",
-      args.since
-    })
-  end
-  local clause = db.clause(clauses, {
-    prefix = "where",
+  local clause = db.clause({
+    id = (function()
+      if args.ids and #args.ids > 0 then
+        return db.list(args.ids)
+      end
+    end)(),
+    status = args.status and ExceptionTypes.statuses:for_db(args.status),
+    (function()
+      if args.search then
+        return {
+          "label @@ plainto_tsquery(?)",
+          args.search
+        }
+      end
+    end)(),
+    (function()
+      if args.search_path then
+        return {
+          "exists (select 1 from exception_requests where exception_requests.exception_type_id = exception_types.id and path like ?)",
+          "%" .. args.search_path .. "%"
+        }
+      end
+    end)(),
+    (function()
+      if args.since then
+        return {
+          "updated_at >= now() - ?::interval",
+          args.since
+        }
+      end
+    end)()
+  }, {
+    prefix = "WHERE",
     allow_empty = true
   })
   local order
