@@ -160,34 +160,46 @@ handle_list = function(args)
     print("No exception types found.")
     return 
   end
-  print_table({
-    "ID",
-    "Count",
-    "Status",
-    "Updated",
-    "Label"
-  }, (function()
-    local _accum_0 = { }
-    local _len_0 = 1
+  if args.full then
     for _index_0 = 1, #exception_types do
       local t = exception_types[_index_0]
-      _accum_0[_len_0] = {
-        t.id,
-        t.count,
-        format_status(t.status),
-        t.updated_at,
-        truncate(t.label, 60)
-      }
-      _len_0 = _len_0 + 1
+      print(colors("%{bright}Exception Type #" .. tostring(t.id) .. "%{reset}"))
+      print("  Status:  " .. tostring(format_status(t.status)))
+      print("  Count:   " .. tostring(t.count))
+      print("  Updated: " .. tostring(t.updated_at))
+      print("  Label:   " .. tostring(t.label))
+      print()
     end
-    return _accum_0
-  end)(), {
-    6,
-    7,
-    10,
-    20,
-    60
-  })
+  else
+    print_table({
+      "ID",
+      "Count",
+      "Status",
+      "Updated",
+      "Label"
+    }, (function()
+      local _accum_0 = { }
+      local _len_0 = 1
+      for _index_0 = 1, #exception_types do
+        local t = exception_types[_index_0]
+        _accum_0[_len_0] = {
+          t.id,
+          t.count,
+          format_status(t.status),
+          t.updated_at,
+          truncate(t.label, 60)
+        }
+        _len_0 = _len_0 + 1
+      end
+      return _accum_0
+    end)(), {
+      6,
+      7,
+      10,
+      20,
+      60
+    })
+  end
   return print_page_info(page, #exception_types)
 end
 local handle_requests
@@ -380,6 +392,7 @@ return {
         _with_1:option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
         _with_1:option("--page -p", "Page number"):default("1"):convert(tonumber)
         _with_1:option("--limit", "Results per page"):default("50"):convert(tonumber)
+        _with_1:flag("--full", "Show full output without truncation")
         _with_1:flag("--json", "Output as JSON")
       end
       do

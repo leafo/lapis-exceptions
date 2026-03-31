@@ -111,11 +111,20 @@ handle_list = (args) ->
     print "No exception types found."
     return
 
-  print_table(
-    {"ID", "Count", "Status", "Updated", "Label"}
-    [{t.id, t.count, format_status(t.status), t.updated_at, truncate(t.label, 60)} for t in *exception_types]
-    {6, 7, 10, 20, 60}
-  )
+  if args.full
+    for t in *exception_types
+      print colors "%{bright}Exception Type ##{t.id}%{reset}"
+      print "  Status:  #{format_status t.status}"
+      print "  Count:   #{t.count}"
+      print "  Updated: #{t.updated_at}"
+      print "  Label:   #{t.label}"
+      print!
+  else
+    print_table(
+      {"ID", "Count", "Status", "Updated", "Label"}
+      [{t.id, t.count, format_status(t.status), t.updated_at, truncate(t.label, 60)} for t in *exception_types]
+      {6, 7, 10, 20, 60}
+    )
 
   print_page_info page, #exception_types
 
@@ -280,6 +289,7 @@ handle_delete = (args) ->
         \option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
         \option("--page -p", "Page number")\default("1")\convert(tonumber)
         \option("--limit", "Results per page")\default("50")\convert(tonumber)
+        \flag("--full", "Show full output without truncation")
         \flag("--json", "Output as JSON")
 
       with \command "requests", "List exception requests"
