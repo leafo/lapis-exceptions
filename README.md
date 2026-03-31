@@ -123,10 +123,73 @@ class App extends lapis.Application
 
 
 
-## Getting the exceptions
+## CLI
 
-There's no admin panel for viewing exceptions inside the web app yet. You'll
-have to manually run queries in the database or use the emails.
+A `lapis exceptions` command is provided for managing exceptions from the
+terminal. It must be run from a Lapis project directory with a valid
+configuration.
+
+```bash
+# List recent exception groups (default command)
+$ lapis exceptions
+
+# List with filters
+$ lapis exceptions list --status resolved --sort count --since '7 days'
+
+# Search exceptions by message or request path
+$ lapis exceptions list --search "timeout" --search-path "/api/"
+
+# Show details for a specific exception group
+$ lapis exceptions show 42
+
+# List individual requests for a group
+$ lapis exceptions requests 42 --show-trace
+
+# Update status of exception groups
+$ lapis exceptions update 42 43 --status ignored
+
+# Delete exception groups
+$ lapis exceptions delete 42 43
+
+# Create an exception manually
+$ lapis exceptions create "something went wrong" --path "/test" --method POST
+```
+
+All list commands support `--json` for machine-readable output, and `--page`
+/ `--limit` for pagination.
+
+## MCP Server
+
+An MCP (Model Context Protocol) server is available for integrating exception
+management with AI tools like Claude. Start it over stdio with:
+
+```bash
+$ lapis mcp lapis.exceptions.mcp_server
+```
+
+To add it to your MCP client configuration (e.g. Claude Desktop or Claude
+Code):
+
+```json
+{
+  "mcpServers": {
+    "lapis-exceptions": {
+      "command": "lapis",
+      "args": ["mcp", "lapis.exceptions.mcp_server"],
+      "cwd": "/path/to/your/lapis/project"
+    }
+  }
+}
+```
+
+The server provides the following tools:
+
+- `list_exception_groups` -- list and filter exception groups
+- `list_exceptions` -- list individual exception requests
+- `show_exception_group` -- show group details with recent exceptions
+- `create_exception` -- create a new exception
+- `update_exception_group` -- update group status
+- `delete_exception_group` -- delete a group and its exceptions
 
 ## Models
 
