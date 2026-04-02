@@ -1,10 +1,8 @@
 
 colors = require "ansicolors"
 
-db = require "lapis.db"
 import to_json from require "lapis.util"
-import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
-import preload from require "lapis.db.model"
+import string_length from require "lapis.util.utf8"
 
 types = require "lapis.validate.types"
 
@@ -18,6 +16,7 @@ truncate = (str, len=80) ->
     result or str
 
 format_status = (status_int) ->
+  import ExceptionTypes from require "lapis.exceptions.models"
   name = ExceptionTypes.statuses\to_name status_int
   switch name
     when "default"
@@ -29,7 +28,6 @@ format_status = (status_int) ->
     else
       name
 
-import string_length from require "lapis.util.utf8"
 
 strip_ansi = (str) ->
   str\gsub "\027%[[%d;]*m", ""
@@ -63,6 +61,9 @@ print_page_info = (page, count) ->
       print "Use --page #{page + 1} for more"
 
 handle_list = (args) ->
+  db = require "lapis.db"
+  import ExceptionTypes from require "lapis.exceptions.models"
+
   clause = db.clause {
     id: if args.ids and #args.ids > 0
       db.list args.ids
@@ -126,6 +127,9 @@ handle_list = (args) ->
   print_page_info page, #exception_types
 
 handle_requests = (args) ->
+  import ExceptionRequests from require "lapis.exceptions.models"
+  import preload from require "lapis.db.model"
+
   per_page = args.limit or 30
   page = args.page or 1
 
@@ -179,6 +183,8 @@ handle_requests = (args) ->
   print_page_info page, #requests
 
 handle_show = (args) ->
+  import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+
   et = ExceptionTypes\find args.exception_type_id
   unless et
     io.stderr\write "Exception type not found: #{args.exception_type_id}\n"
@@ -204,6 +210,8 @@ handle_show = (args) ->
       print "  ##{r.id} [#{r.method or '?'}] #{r.path or '?'} (#{r.created_at}) - #{truncate r.msg, 60}"
 
 handle_create = (args) ->
+  import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
+
   data = if args.data
     import from_json from require "lapis.util"
     from_json args.data
@@ -233,6 +241,8 @@ handle_create = (args) ->
   print "  Label: #{truncate etype.label, 80}"
 
 handle_update = (args) ->
+  import ExceptionTypes from require "lapis.exceptions.models"
+
   unless args.status
     io.stderr\write "Nothing to update. Use --status to set a new status.\n"
     return
@@ -247,6 +257,9 @@ handle_update = (args) ->
     print "Updated exception type ##{et.id} status to #{format_status et.status}"
 
 handle_delete = (args) ->
+  db = require "lapis.db"
+  import ExceptionTypes from require "lapis.exceptions.models"
+
   for id in *args.exception_type_ids
     et = ExceptionTypes\find id
     unless et
@@ -279,7 +292,7 @@ handle_delete = (args) ->
   argparser: ->
     with require("argparse") "lapis exceptions", "Manage tracked exceptions"
       \command_target "command"
-      \require_command false
+      \require_command true
       \add_help_command!
 
       with \command "list", "List exceptions with counts"
@@ -325,7 +338,7 @@ handle_delete = (args) ->
 
   (args, lapis_args) =>
     switch args.command
-      when "list", nil then handle_list args
+      when "list" then handle_list args
       when "requests" then handle_requests args
       when "show" then handle_show args
       when "create" then handle_create args

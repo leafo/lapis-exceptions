@@ -1,14 +1,8 @@
 local colors = require("ansicolors")
-local db = require("lapis.db")
 local to_json
 to_json = require("lapis.util").to_json
-local ExceptionRequests, ExceptionTypes
-do
-  local _obj_0 = require("lapis.exceptions.models")
-  ExceptionRequests, ExceptionTypes = _obj_0.ExceptionRequests, _obj_0.ExceptionTypes
-end
-local preload
-preload = require("lapis.db.model").preload
+local string_length
+string_length = require("lapis.util.utf8").string_length
 local types = require("lapis.validate.types")
 local truncate
 truncate = function(str, len)
@@ -28,6 +22,8 @@ truncate = function(str, len)
 end
 local format_status
 format_status = function(status_int)
+  local ExceptionTypes
+  ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
   local name = ExceptionTypes.statuses:to_name(status_int)
   local _exp_0 = name
   if "default" == _exp_0 then
@@ -40,8 +36,6 @@ format_status = function(status_int)
     return name
   end
 end
-local string_length
-string_length = require("lapis.util.utf8").string_length
 local strip_ansi
 strip_ansi = function(str)
   return str:gsub("\027%[[%d;]*m", "")
@@ -101,6 +95,9 @@ print_page_info = function(page, count)
 end
 local handle_list
 handle_list = function(args)
+  local db = require("lapis.db")
+  local ExceptionTypes
+  ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
   local clause = db.clause({
     id = (function()
       if args.ids and #args.ids > 0 then
@@ -205,6 +202,10 @@ handle_list = function(args)
 end
 local handle_requests
 handle_requests = function(args)
+  local ExceptionRequests
+  ExceptionRequests = require("lapis.exceptions.models").ExceptionRequests
+  local preload
+  preload = require("lapis.db.model").preload
   local per_page = args.limit or 30
   local page = args.page or 1
   local pager
@@ -263,6 +264,11 @@ handle_requests = function(args)
 end
 local handle_show
 handle_show = function(args)
+  local ExceptionRequests, ExceptionTypes
+  do
+    local _obj_0 = require("lapis.exceptions.models")
+    ExceptionRequests, ExceptionTypes = _obj_0.ExceptionRequests, _obj_0.ExceptionTypes
+  end
   local et = ExceptionTypes:find(args.exception_type_id)
   if not (et) then
     io.stderr:write("Exception type not found: " .. tostring(args.exception_type_id) .. "\n")
@@ -290,6 +296,11 @@ handle_show = function(args)
 end
 local handle_create
 handle_create = function(args)
+  local ExceptionRequests, ExceptionTypes
+  do
+    local _obj_0 = require("lapis.exceptions.models")
+    ExceptionRequests, ExceptionTypes = _obj_0.ExceptionRequests, _obj_0.ExceptionTypes
+  end
   local data
   if args.data then
     local from_json
@@ -324,6 +335,8 @@ handle_create = function(args)
 end
 local handle_update
 handle_update = function(args)
+  local ExceptionTypes
+  ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
   if not (args.status) then
     io.stderr:write("Nothing to update. Use --status to set a new status.\n")
     return 
@@ -352,6 +365,9 @@ handle_update = function(args)
 end
 local handle_delete
 handle_delete = function(args)
+  local db = require("lapis.db")
+  local ExceptionTypes
+  ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
   local _list_0 = args.exception_type_ids
   for _index_0 = 1, #_list_0 do
     local _continue_0 = false
@@ -405,7 +421,7 @@ return {
     do
       local _with_0 = require("argparse")("lapis exceptions", "Manage tracked exceptions")
       _with_0:command_target("command")
-      _with_0:require_command(false)
+      _with_0:require_command(true)
       _with_0:add_help_command()
       do
         local _with_1 = _with_0:command("list", "List exceptions with counts")
@@ -472,7 +488,7 @@ return {
   end,
   function(self, args, lapis_args)
     local _exp_0 = args.command
-    if "list" == _exp_0 or nil == _exp_0 then
+    if "list" == _exp_0 then
       return handle_list(args)
     elseif "requests" == _exp_0 then
       return handle_requests(args)
