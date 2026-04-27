@@ -75,18 +75,25 @@ import
   [1761609600]: =>
     add_column "exception_types", "last_seen_at", time null: true
 
-    db.query [[
-      UPDATE exception_types et
-      SET last_seen_at = sub.last_at
-      FROM (
-        SELECT exception_type_id, MAX(created_at) AS last_at
-        FROM exception_requests
-        GROUP BY exception_type_id
-      ) sub
-      WHERE et.id = sub.exception_type_id
-    ]]
+    -- the GROUP BY over exception_requests can be expensive on large tables;
+    -- set LAPIS_EXCEPTIONS_SKIP_LAST_SEEN_BACKFILL=1 to skip it and seed
+    -- last_seen_at from updated_at instead (which previously tracked the
+    -- last occurrence via count bumps)
+    if os.getenv "LAPIS_EXCEPTIONS_SKIP_LAST_SEEN_BACKFILL"
+      db.query "UPDATE exception_types SET last_seen_at = updated_at"
+    else
+      db.query [[
+        UPDATE exception_types et
+        SET last_seen_at = sub.last_at
+        FROM (
+          SELECT exception_type_id, MAX(created_at) AS last_at
+          FROM exception_requests
+          GROUP BY exception_type_id
+        ) sub
+        WHERE et.id = sub.exception_type_id
+      ]]
+      db.query "UPDATE exception_types SET last_seen_at = created_at WHERE last_seen_at IS NULL"
 
-    db.query "UPDATE exception_types SET last_seen_at = created_at WHERE last_seen_at IS NULL"
     db.query "ALTER TABLE exception_types ALTER COLUMN last_seen_at SET NOT NULL"
     create_index "exception_types", "last_seen_at"
 

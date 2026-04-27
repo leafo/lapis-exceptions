@@ -117,16 +117,20 @@ return {
     add_column("exception_types", "last_seen_at", time({
       null = true
     }))
-    db.query([[      UPDATE exception_types et
-      SET last_seen_at = sub.last_at
-      FROM (
-        SELECT exception_type_id, MAX(created_at) AS last_at
-        FROM exception_requests
-        GROUP BY exception_type_id
-      ) sub
-      WHERE et.id = sub.exception_type_id
-    ]])
-    db.query("UPDATE exception_types SET last_seen_at = created_at WHERE last_seen_at IS NULL")
+    if os.getenv("LAPIS_EXCEPTIONS_SKIP_LAST_SEEN_BACKFILL") then
+      db.query("UPDATE exception_types SET last_seen_at = updated_at")
+    else
+      db.query([[        UPDATE exception_types et
+        SET last_seen_at = sub.last_at
+        FROM (
+          SELECT exception_type_id, MAX(created_at) AS last_at
+          FROM exception_requests
+          GROUP BY exception_type_id
+        ) sub
+        WHERE et.id = sub.exception_type_id
+      ]])
+      db.query("UPDATE exception_types SET last_seen_at = created_at WHERE last_seen_at IS NULL")
+    end
     db.query("ALTER TABLE exception_types ALTER COLUMN last_seen_at SET NOT NULL")
     return create_index("exception_types", "last_seen_at")
   end
