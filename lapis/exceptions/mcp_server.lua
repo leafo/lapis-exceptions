@@ -22,7 +22,7 @@ format_group = function(et)
     count = et.count,
     status = ExceptionTypes.statuses:to_name(et.status),
     created_at = et.created_at,
-    updated_at = et.updated_at
+    last_seen_at = et.last_seen_at
   }
 end
 local format_exception
@@ -89,7 +89,7 @@ do
       status = types.db_enum(ExceptionTypes.statuses):describe("filter by status"):is_optional(),
       search = types.trimmed_text:describe("full-text search on labels"):is_optional(),
       search_path = types.trimmed_text:describe("filter by request path substring"):is_optional(),
-      since = types.trimmed_text:describe("updated within interval, e.g. '24 hours'"):is_optional(),
+      since = types.trimmed_text:describe("seen within interval, e.g. '24 hours'"):is_optional(),
       sort = types.one_of({
         "recent",
         "oldest",
@@ -126,7 +126,7 @@ do
       (function()
         if params.since then
           return {
-            "updated_at >= now() - ?::interval",
+            "last_seen_at >= now() - ?::interval",
             params.since
           }
         end
@@ -138,13 +138,13 @@ do
     local order
     local _exp_0 = params.sort
     if "oldest" == _exp_0 then
-      order = "ORDER BY updated_at ASC"
+      order = "ORDER BY last_seen_at ASC"
     elseif "count" == _exp_0 then
       order = "ORDER BY count DESC"
     elseif "id" == _exp_0 then
       order = "ORDER BY id ASC"
     else
-      order = "ORDER BY updated_at DESC"
+      order = "ORDER BY last_seen_at DESC"
     end
     local per_page = params.limit or 50
     local page = params.page or 1

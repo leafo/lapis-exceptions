@@ -34,7 +34,7 @@ class ExceptionFlow extends Flow
 
     }, prefix: "where", allow_empty: true
 
-    @pager = ExceptionTypes\paginated [[? ORDER BY updated_at DESC]], clause, {
+    @pager = ExceptionTypes\paginated [[? ORDER BY last_seen_at DESC]], clause, {
       per_page: 50
     }
 

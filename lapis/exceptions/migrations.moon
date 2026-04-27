@@ -72,5 +72,23 @@ import
   [1755025174]: =>
     db.query "ALTER TABLE exception_requests ADD CONSTRAINT exception_requests_exception_type_id_fkey FOREIGN KEY (exception_type_id) REFERENCES exception_types(id) ON DELETE CASCADE"
 
+  [1761609600]: =>
+    add_column "exception_types", "last_seen_at", time null: true
+
+    db.query [[
+      UPDATE exception_types et
+      SET last_seen_at = sub.last_at
+      FROM (
+        SELECT exception_type_id, MAX(created_at) AS last_at
+        FROM exception_requests
+        GROUP BY exception_type_id
+      ) sub
+      WHERE et.id = sub.exception_type_id
+    ]]
+
+    db.query "UPDATE exception_types SET last_seen_at = created_at WHERE last_seen_at IS NULL"
+    db.query "ALTER TABLE exception_types ALTER COLUMN last_seen_at SET NOT NULL"
+    create_index "exception_types", "last_seen_at"
+
 }
 

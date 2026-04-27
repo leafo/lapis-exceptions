@@ -146,7 +146,7 @@ handle_list = function(args)
     (function()
       if args.since then
         return {
-          "updated_at >= now() - ?::interval",
+          "last_seen_at >= now() - ?::interval",
           args.since
         }
       end
@@ -158,13 +158,13 @@ handle_list = function(args)
   local order
   local _exp_0 = args.sort
   if "oldest" == _exp_0 then
-    order = "ORDER BY updated_at ASC"
+    order = "ORDER BY last_seen_at ASC"
   elseif "count" == _exp_0 then
     order = "ORDER BY count DESC"
   elseif "id" == _exp_0 then
     order = "ORDER BY id ASC"
   else
-    order = "ORDER BY updated_at DESC"
+    order = "ORDER BY last_seen_at DESC"
   end
   local per_page = args.limit or 50
   local pager = ExceptionTypes:paginated("? " .. tostring(order), clause, {
@@ -184,10 +184,10 @@ handle_list = function(args)
     for _index_0 = 1, #exception_types do
       local t = exception_types[_index_0]
       print(colors("%{bright}Exception Type #" .. tostring(t.id) .. "%{reset}"))
-      print("  Status:  " .. tostring(format_status(t.status)))
-      print("  Count:   " .. tostring(t.count))
-      print("  Updated: " .. tostring(t.updated_at))
-      print("  Label:   " .. tostring(t.label))
+      print("  Status:    " .. tostring(format_status(t.status)))
+      print("  Count:     " .. tostring(t.count))
+      print("  Last Seen: " .. tostring(t.last_seen_at))
+      print("  Label:     " .. tostring(t.label))
       print()
     end
   else
@@ -195,7 +195,7 @@ handle_list = function(args)
       "ID",
       "Count",
       "Status",
-      "Updated",
+      "Last Seen",
       "Label"
     }, (function()
       local _accum_0 = { }
@@ -206,7 +206,7 @@ handle_list = function(args)
           t.id,
           t.count,
           format_status(t.status),
-          t.updated_at,
+          t.last_seen_at,
           truncate(t.label, 60)
         }
         _len_0 = _len_0 + 1
@@ -283,11 +283,11 @@ handle_show = function(args)
     return 
   end
   print(colors("%{bright}Exception Type #" .. tostring(et.id) .. "%{reset}"))
-  print("  Status:  " .. tostring(format_status(et.status)))
-  print("  Count:   " .. tostring(et.count))
-  print("  Created: " .. tostring(et.created_at))
-  print("  Updated: " .. tostring(et.updated_at))
-  print("  Label:   " .. tostring(et.label))
+  print("  Status:    " .. tostring(format_status(et.status)))
+  print("  Count:     " .. tostring(et.count))
+  print("  Created:   " .. tostring(et.created_at))
+  print("  Last Seen: " .. tostring(et.last_seen_at))
+  print("  Label:     " .. tostring(et.label))
   print()
   local recent = ExceptionRequests:select("where exception_type_id = ? order by created_at desc limit ?", et.id, args.recent)
   if #recent > 0 then
@@ -451,7 +451,7 @@ return {
         })
         _with_1:option("--search", "Filter labels by search text")
         _with_1:option("--search-path", "Filter to exceptions with requests matching path")
-        _with_1:option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
+        _with_1:option("--since", "Show exceptions seen within this interval (e.g. '24 hours', '7 days')")
         _with_1:option("--page -p", "Page number"):default("1"):convert(tonumber)
         _with_1:option("--limit", "Results per page"):default("50"):convert(tonumber)
         _with_1:flag("--full", "Show full output without truncation")
@@ -462,7 +462,7 @@ return {
         _with_1:argument("exception_type_id", "Exception type ID (optional)"):args("?"):convert(tonumber)
         _with_1:option("--page -p", "Page number"):default("1"):convert(tonumber)
         _with_1:option("--limit", "Results per page"):default("30"):convert(tonumber)
-        _with_1:flag("--show-trace", "Show full stack traces")
+        _with_1:flag("--show-trace --trace", "Show full stack traces")
         _with_1:flag("--json", "Output as JSON")
       end
       do
@@ -470,7 +470,7 @@ return {
         _with_1:argument("exception_type_id", "Exception type ID"):convert(tonumber)
         _with_1:option("--recent", "Number of recent requests to show"):default("5"):convert(tonumber)
         _with_1:flag("--full", "Show full details for each recent request")
-        _with_1:flag("--trace", "Show full stack traces (with --full)")
+        _with_1:flag("--show-trace --trace", "Show full stack traces (with --full)")
         _with_1:flag("--json", "Output as JSON")
       end
       do

@@ -62,7 +62,7 @@ do
         prefix = "where",
         allow_empty = true
       })
-      self.pager = ExceptionTypes:paginated([[? ORDER BY updated_at DESC]], clause, {
+      self.pager = ExceptionTypes:paginated([[? ORDER BY last_seen_at DESC]], clause, {
         per_page = 50
       })
       self.page = params.page

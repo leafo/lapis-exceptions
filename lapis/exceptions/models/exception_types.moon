@@ -58,11 +58,13 @@ normalize_error = do
 --   created_at timestamp without time zone NOT NULL,
 --   updated_at timestamp without time zone NOT NULL,
 --   count integer DEFAULT 0 NOT NULL,
---   status smallint DEFAULT 1 NOT NULL
+--   status smallint DEFAULT 1 NOT NULL,
+--   last_seen_at timestamp without time zone NOT NULL
 -- );
 -- ALTER TABLE ONLY exception_types
 --   ADD CONSTRAINT exception_types_pkey PRIMARY KEY (id);
 -- CREATE INDEX exception_types_label_idx ON exception_types USING btree (label);
+-- CREATE INDEX exception_types_last_seen_at_idx ON exception_types USING btree (last_seen_at);
 --
 class ExceptionTypes extends Model
   @timestamp: true
@@ -82,6 +84,7 @@ class ExceptionTypes extends Model
   @create: (opts={}) =>
     opts.label = sanitize_text opts.label
     opts.status = @statuses\for_db opts.status or "default"
+    opts.last_seen_at or= db.format_date!
     super opts
 
   @find_or_create: (label) =>
@@ -112,5 +115,5 @@ class ExceptionTypes extends Model
       return true
 
     date = require "date"
-    last_occurrence = date.diff(date(true), date(@updated_at))\spanseconds!
+    last_occurrence = date.diff(date(true), date(@last_seen_at))\spanseconds!
     last_occurrence > 60*10

@@ -17,7 +17,7 @@ format_group = (et) ->
     count: et.count
     status: ExceptionTypes.statuses\to_name et.status
     created_at: et.created_at
-    updated_at: et.updated_at
+    last_seen_at: et.last_seen_at
   }
 
 format_exception = (r) ->
@@ -52,7 +52,7 @@ class ExceptionsMcpServer extends McpServer
       status: types.db_enum(ExceptionTypes.statuses)\describe("filter by status")\is_optional!
       search: types.trimmed_text\describe("full-text search on labels")\is_optional!
       search_path: types.trimmed_text\describe("filter by request path substring")\is_optional!
-      since: types.trimmed_text\describe("updated within interval, e.g. '24 hours'")\is_optional!
+      since: types.trimmed_text\describe("seen within interval, e.g. '24 hours'")\is_optional!
       sort: types.one_of({"recent", "oldest", "count", "id"})\describe("sort order")\is_optional!
       page: types.db_id\describe("page number")\is_optional!
       limit: types.db_id\describe("results per page")\is_optional!
@@ -74,14 +74,14 @@ class ExceptionsMcpServer extends McpServer
         }
 
       if params.since
-        {"updated_at >= now() - ?::interval", params.since}
+        {"last_seen_at >= now() - ?::interval", params.since}
     }, prefix: "where", allow_empty: true
 
     order = switch params.sort
-      when "oldest" then "ORDER BY updated_at ASC"
+      when "oldest" then "ORDER BY last_seen_at ASC"
       when "count" then "ORDER BY count DESC"
       when "id" then "ORDER BY id ASC"
-      else "ORDER BY updated_at DESC"
+      else "ORDER BY last_seen_at DESC"
 
     per_page = params.limit or 50
     page = params.page or 1

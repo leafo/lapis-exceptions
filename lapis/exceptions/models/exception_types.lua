@@ -75,7 +75,7 @@ do
         return true
       end
       local date = require("date")
-      local last_occurrence = date.diff(date(true), date(self.updated_at)):spanseconds()
+      local last_occurrence = date.diff(date(true), date(self.last_seen_at)):spanseconds()
       return last_occurrence > 60 * 10
     end
   }
@@ -129,6 +129,7 @@ do
     end
     opts.label = sanitize_text(opts.label)
     opts.status = self.statuses:for_db(opts.status or "default")
+    opts.last_seen_at = opts.last_seen_at or db.format_date()
     return _class_0.__parent.create(self, opts)
   end
   self.find_or_create = function(self, label)

@@ -112,8 +112,12 @@ do
     local ExceptionTypes
     ExceptionTypes = require("lapis.exceptions.models").ExceptionTypes
     local etype, new_type = ExceptionTypes:find_or_create(msg)
+    local should_notify = etype:should_notify()
     etype:update({
-      count = db.raw("count + 1")
+      count = db.raw("count + 1"),
+      last_seen_at = db.format_date()
+    }, {
+      timestamp = false
     })
     local to_json
     to_json = require("lapis.util").to_json
@@ -128,7 +132,6 @@ do
       referer = referer ~= "" and sanitize_text(referer) or nil
     })
     ereq.exception_type = etype
-    local should_notify = etype:should_notify()
     if should_notify then
       ereq:send_email(self)
     end

@@ -97,18 +97,18 @@ handle_list = (args) ->
       }
 
     if args.since
-      {"updated_at >= now() - ?::interval", args.since}
+      {"last_seen_at >= now() - ?::interval", args.since}
   }, prefix: "WHERE", allow_empty: true
 
   order = switch args.sort
     when "oldest"
-      "ORDER BY updated_at ASC"
+      "ORDER BY last_seen_at ASC"
     when "count"
       "ORDER BY count DESC"
     when "id"
       "ORDER BY id ASC"
     else
-      "ORDER BY updated_at DESC"
+      "ORDER BY last_seen_at DESC"
 
   per_page = args.limit or 50
   pager = ExceptionTypes\paginated "? #{order}", clause, {
@@ -129,15 +129,15 @@ handle_list = (args) ->
   if args.full
     for t in *exception_types
       print colors "%{bright}Exception Type ##{t.id}%{reset}"
-      print "  Status:  #{format_status t.status}"
-      print "  Count:   #{t.count}"
-      print "  Updated: #{t.updated_at}"
-      print "  Label:   #{t.label}"
+      print "  Status:    #{format_status t.status}"
+      print "  Count:     #{t.count}"
+      print "  Last Seen: #{t.last_seen_at}"
+      print "  Label:     #{t.label}"
       print!
   else
     print_table(
-      {"ID", "Count", "Status", "Updated", "Label"}
-      [{t.id, t.count, format_status(t.status), t.updated_at, truncate(t.label, 60)} for t in *exception_types]
+      {"ID", "Count", "Status", "Last Seen", "Label"}
+      [{t.id, t.count, format_status(t.status), t.last_seen_at, truncate(t.label, 60)} for t in *exception_types]
       {6, 7, 10, 20, 60}
     )
 
@@ -198,11 +198,11 @@ handle_show = (args) ->
     return
 
   print colors "%{bright}Exception Type ##{et.id}%{reset}"
-  print "  Status:  #{format_status et.status}"
-  print "  Count:   #{et.count}"
-  print "  Created: #{et.created_at}"
-  print "  Updated: #{et.updated_at}"
-  print "  Label:   #{et.label}"
+  print "  Status:    #{format_status et.status}"
+  print "  Count:     #{et.count}"
+  print "  Created:   #{et.created_at}"
+  print "  Last Seen: #{et.last_seen_at}"
+  print "  Label:     #{et.label}"
   print!
 
   recent = ExceptionRequests\select "where exception_type_id = ? order by created_at desc limit ?", et.id, args.recent
@@ -308,7 +308,7 @@ handle_delete = (args) ->
         \option("--status -s", "Filter by status")\choices({"default", "resolved", "ignored"})
         \option("--search", "Filter labels by search text")
         \option("--search-path", "Filter to exceptions with requests matching path")
-        \option("--since", "Show exceptions updated within this interval (e.g. '24 hours', '7 days')")
+        \option("--since", "Show exceptions seen within this interval (e.g. '24 hours', '7 days')")
         \option("--page -p", "Page number")\default("1")\convert(tonumber)
         \option("--limit", "Results per page")\default("50")\convert(tonumber)
         \flag("--full", "Show full output without truncation")

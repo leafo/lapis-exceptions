@@ -70,7 +70,15 @@ class ExceptionRequests extends Model
     import ExceptionTypes from require "lapis.exceptions.models"
 
     etype, new_type = ExceptionTypes\find_or_create msg
-    etype\update count: db.raw "count + 1"
+
+    -- evaluate before bumping last_seen_at, since lapis writes the new
+    -- value back onto etype and would clobber the previous timestamp
+    should_notify = etype\should_notify!
+
+    etype\update {
+      count: db.raw "count + 1"
+      last_seen_at: db.format_date!
+    }, timestamp: false
 
     import to_json from require "lapis.util"
 
@@ -88,8 +96,6 @@ class ExceptionRequests extends Model
 
     -- preload the relation
     ereq.exception_type = etype
-
-    should_notify = etype\should_notify!
 
     if should_notify
       ereq\send_email @
