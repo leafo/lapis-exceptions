@@ -60,6 +60,23 @@ print_page_info = (page, count) ->
     if count >= 50
       print "Use --page #{page + 1} for more"
 
+print_request_full = (r, show_trace) ->
+  print colors "%{bright}Request ##{r.id}%{reset} (#{r.created_at})"
+  print "  Type:    ##{r.exception_type_id}"
+  print "  Method:  #{r.method or ''}"
+  print "  Path:    #{r.path or ''}"
+  print "  IP:      #{r.ip or ''}"
+  if r.referer
+    print "  Referer: #{r.referer}"
+  print "  Message: #{r.msg or ''}"
+  if show_trace and r.trace
+    print "  Trace:"
+    for line in r.trace\gmatch "[^\n]+"
+      print "    #{line}"
+  data = r\get_data!
+  if data and next(data)
+    print "  Data:    #{to_json data}"
+
 handle_list = (args) ->
   db = require "lapis.db"
   import ExceptionTypes from require "lapis.exceptions.models"
@@ -163,21 +180,7 @@ handle_requests = (args) ->
     return
 
   for r in *requests
-    print colors "%{bright}Request ##{r.id}%{reset} (#{r.created_at})"
-    print "  Type:    ##{r.exception_type_id}"
-    print "  Method:  #{r.method or ''}"
-    print "  Path:    #{r.path or ''}"
-    print "  IP:      #{r.ip or ''}"
-    if r.referer
-      print "  Referer: #{r.referer}"
-    print "  Message: #{r.msg or ''}"
-    if args.show_trace and r.trace
-      print "  Trace:"
-      for line in r.trace\gmatch "[^\n]+"
-        print "    #{line}"
-    data = r\get_data!
-    if data and next(data)
-      print "  Data:    #{to_json data}"
+    print_request_full r, args.show_trace
     print!
 
   print_page_info page, #requests
@@ -202,12 +205,16 @@ handle_show = (args) ->
   print "  Label:   #{et.label}"
   print!
 
-  -- show recent requests
-  recent = ExceptionRequests\select "where exception_type_id = ? order by created_at desc limit 5", et.id
+  recent = ExceptionRequests\select "where exception_type_id = ? order by created_at desc limit ?", et.id, args.recent
   if #recent > 0
     print colors "%{bright}Recent Requests:%{reset}"
-    for r in *recent
-      print "  ##{r.id} [#{r.method or '?'}] #{r.path or '?'} (#{r.created_at}) - #{truncate r.msg, 60}"
+    if args.full
+      for r in *recent
+        print_request_full r, args.trace
+        print!
+    else
+      for r in *recent
+        print "  ##{r.id} [#{r.method or '?'}] #{r.path or '?'} (#{r.created_at}) - #{truncate r.msg, 60}"
 
 handle_create = (args) ->
   import ExceptionRequests, ExceptionTypes from require "lapis.exceptions.models"
@@ -316,6 +323,9 @@ handle_delete = (args) ->
 
       with \command "show", "Show details for an exception type"
         \argument("exception_type_id", "Exception type ID")\convert(tonumber)
+        \option("--recent", "Number of recent requests to show")\default("5")\convert(tonumber)
+        \flag("--full", "Show full details for each recent request")
+        \flag("--trace", "Show full stack traces (with --full)")
         \flag("--json", "Output as JSON")
 
       with \command "create", "Create a new exception from the CLI"

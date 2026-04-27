@@ -93,6 +93,28 @@ print_page_info = function(page, count)
     end
   end
 end
+local print_request_full
+print_request_full = function(r, show_trace)
+  print(colors("%{bright}Request #" .. tostring(r.id) .. "%{reset} (" .. tostring(r.created_at) .. ")"))
+  print("  Type:    #" .. tostring(r.exception_type_id))
+  print("  Method:  " .. tostring(r.method or ''))
+  print("  Path:    " .. tostring(r.path or ''))
+  print("  IP:      " .. tostring(r.ip or ''))
+  if r.referer then
+    print("  Referer: " .. tostring(r.referer))
+  end
+  print("  Message: " .. tostring(r.msg or ''))
+  if show_trace and r.trace then
+    print("  Trace:")
+    for line in r.trace:gmatch("[^\n]+") do
+      print("    " .. tostring(line))
+    end
+  end
+  local data = r:get_data()
+  if data and next(data) then
+    return print("  Data:    " .. tostring(to_json(data)))
+  end
+end
 local handle_list
 handle_list = function(args)
   local db = require("lapis.db")
@@ -239,25 +261,7 @@ handle_requests = function(args)
   end
   for _index_0 = 1, #requests do
     local r = requests[_index_0]
-    print(colors("%{bright}Request #" .. tostring(r.id) .. "%{reset} (" .. tostring(r.created_at) .. ")"))
-    print("  Type:    #" .. tostring(r.exception_type_id))
-    print("  Method:  " .. tostring(r.method or ''))
-    print("  Path:    " .. tostring(r.path or ''))
-    print("  IP:      " .. tostring(r.ip or ''))
-    if r.referer then
-      print("  Referer: " .. tostring(r.referer))
-    end
-    print("  Message: " .. tostring(r.msg or ''))
-    if args.show_trace and r.trace then
-      print("  Trace:")
-      for line in r.trace:gmatch("[^\n]+") do
-        print("    " .. tostring(line))
-      end
-    end
-    local data = r:get_data()
-    if data and next(data) then
-      print("  Data:    " .. tostring(to_json(data)))
-    end
+    print_request_full(r, args.show_trace)
     print()
   end
   return print_page_info(page, #requests)
@@ -285,12 +289,20 @@ handle_show = function(args)
   print("  Updated: " .. tostring(et.updated_at))
   print("  Label:   " .. tostring(et.label))
   print()
-  local recent = ExceptionRequests:select("where exception_type_id = ? order by created_at desc limit 5", et.id)
+  local recent = ExceptionRequests:select("where exception_type_id = ? order by created_at desc limit ?", et.id, args.recent)
   if #recent > 0 then
     print(colors("%{bright}Recent Requests:%{reset}"))
-    for _index_0 = 1, #recent do
-      local r = recent[_index_0]
-      print("  #" .. tostring(r.id) .. " [" .. tostring(r.method or '?') .. "] " .. tostring(r.path or '?') .. " (" .. tostring(r.created_at) .. ") - " .. tostring(truncate(r.msg, 60)))
+    if args.full then
+      for _index_0 = 1, #recent do
+        local r = recent[_index_0]
+        print_request_full(r, args.trace)
+        print()
+      end
+    else
+      for _index_0 = 1, #recent do
+        local r = recent[_index_0]
+        print("  #" .. tostring(r.id) .. " [" .. tostring(r.method or '?') .. "] " .. tostring(r.path or '?') .. " (" .. tostring(r.created_at) .. ") - " .. tostring(truncate(r.msg, 60)))
+      end
     end
   end
 end
@@ -456,6 +468,9 @@ return {
       do
         local _with_1 = _with_0:command("show", "Show details for an exception type")
         _with_1:argument("exception_type_id", "Exception type ID"):convert(tonumber)
+        _with_1:option("--recent", "Number of recent requests to show"):default("5"):convert(tonumber)
+        _with_1:flag("--full", "Show full details for each recent request")
+        _with_1:flag("--trace", "Show full stack traces (with --full)")
         _with_1:flag("--json", "Output as JSON")
       end
       do
