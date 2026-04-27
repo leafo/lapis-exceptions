@@ -69,26 +69,6 @@ config "production", ->
   -- ...
 ```
 
-## Emails
-
-Lapis doesn't have a standardized email sending interface yet, in order for
-mail to work you need to provide your own `send_mail` function.
-
-The exception mailer will look for a module called `helpers.email` and it
-should contain a function called `send_email` that takes as arguments the
-recipient email address, the subject, and the body.
-
-```
--- this should work to be able to send exception emails:
-require("helpers.email").send_email "leafo@example.com", "Hello!", "This is an email"
-```
-
-You can find an [example send_mail implementation in the MoonRocks
-repository](https://github.com/leafo/moonrocks-site/blob/master/helpers/email.moon).
-
-An email will be sent to `config.admin_email` every time a new exception type
-is created, or every time an exception type is updated if it's been 10 minutes
-since the last update.
 
 ## Protected calls
 
@@ -130,8 +110,8 @@ terminal. It must be run from a Lapis project directory with a valid
 configuration.
 
 ```bash
-# List recent exception groups (default command)
-$ lapis exceptions
+# Show all available commands
+$ lapis exceptions --help
 
 # List with filters
 $ lapis exceptions list --status resolved --sort count --since '7 days'
@@ -142,13 +122,13 @@ $ lapis exceptions list --search "timeout" --search-path "/api/"
 # Show details for a specific exception group
 $ lapis exceptions show 42
 
-# List individual requests for a group
+# List most recent requests for a group
 $ lapis exceptions requests 42 --show-trace
 
-# Update status of exception groups
+# Update status of exception groups by id
 $ lapis exceptions update 42 43 --status ignored
 
-# Delete exception groups
+# Delete exception groups by id
 $ lapis exceptions delete 42 43
 
 # Create an exception manually
@@ -221,6 +201,28 @@ Would be normalized to:
     ./lapis/nginx/postgres.lua:51: header part is incomplete: select id from hello_world where name = [STRING] and age > [NUMBER]
 
 Before being stored in the database.
+
+## Emails
+
+Lapis doesn't have a standardized email sending interface yet, in order for
+mail to work you need to provide your own `send_mail` function.
+
+The exception mailer will look for a module called `helpers.email` and it
+should contain a function called `send_email` that takes as arguments the
+recipient email address, the subject, and the body.
+
+```
+-- this should work to be able to send exception emails:
+require("helpers.email").send_email "leafo@example.com", "Hello!", "This is an email"
+```
+
+You can find an [example send_mail implementation in the MoonRocks
+repository](https://github.com/leafo/moonrocks-site/blob/master/helpers/email.moon).
+
+An email will be sent to `config.admin_email` every time a new exception type
+is created, or every time an exception type is updated if it's been 10 minutes
+since the last update.
+
 
 # Changelog
 

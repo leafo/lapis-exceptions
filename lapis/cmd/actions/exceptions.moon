@@ -318,14 +318,14 @@ handle_delete = (args) ->
         \argument("exception_type_id", "Exception type ID (optional)")\args("?")\convert(tonumber)
         \option("--page -p", "Page number")\default("1")\convert(tonumber)
         \option("--limit", "Results per page")\default("30")\convert(tonumber)
-        \flag("--show-trace", "Show full stack traces")
+        \flag("--show-trace --trace", "Show full stack traces")
         \flag("--json", "Output as JSON")
 
       with \command "show", "Show details for an exception type"
         \argument("exception_type_id", "Exception type ID")\convert(tonumber)
         \option("--recent", "Number of recent requests to show")\default("5")\convert(tonumber)
         \flag("--full", "Show full details for each recent request")
-        \flag("--trace", "Show full stack traces (with --full)")
+        \flag("--show-trace --trace", "Show full stack traces (with --full)")
         \flag("--json", "Output as JSON")
 
       with \command "create", "Create a new exception from the CLI"
